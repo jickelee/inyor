@@ -9359,6 +9359,32 @@ button { cursor: pointer; }
   gap: 10px;
 }
 
+.phase3-batch-toast {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 88px;
+  z-index: 8;
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  align-items: center;
+  gap: 9px;
+  min-height: 54px;
+  padding: 11px 14px;
+  color: #fff;
+  background: rgba(15, 28, 35, .94);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 16px;
+  box-shadow: 0 18px 38px rgba(8, 18, 24, .28);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.phase3-batch-toast svg {
+  color: #ffd84d;
+}
+
 .youth-theme .phase3-phone .btn {
   min-height: 48px;
   border-radius: 12px;

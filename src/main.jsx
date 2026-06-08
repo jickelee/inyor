@@ -2239,6 +2239,8 @@ const phase3Order = {
   service: '436.5',
 };
 
+const phase3BatchMessage = 'Your bill amount is being updated. Please try again later.';
+
 const phase3Installments = [
   { title: '1st Installment', amount: '3,728', due: '16 Jan 2026', repayDate: '20 Jan 2026', late: '211.02', status: 'Paid' },
   { title: '2nd Installment', amount: '3,868', due: '31 Jan 2026', late: '1,251.6', status: '20 Days Overdue' },
@@ -2374,10 +2376,22 @@ function Phase3KeyRows({ amount = '3,868', due = '31 Jan 2026', late = '351.6', 
   );
 }
 
+function Phase3BatchToast({ visible }) {
+  if (!visible) return null;
+  return (
+    <div className="phase3-batch-toast" role="status">
+      <Info size={18} />
+      <span>{phase3BatchMessage}</span>
+    </div>
+  );
+}
+
 function Phase3Repayment({ mode = 'singleOverdue', rtl = false }) {
+  const [showBatchToast, setShowBatchToast] = React.useState(false);
   const isBeforeDue = mode === 'beforeDue';
   const isMulti = mode === 'multiOverdue';
   const currentDays = mode === 'twentyDays' || isMulti ? 20 : 5;
+  const showRepayBatchMessage = () => setShowBatchToast(true);
   return (
     <PhoneFrame tab="repay" rtl={rtl} className="phase3-phone phase3-repay-phone">
       <Phase3Tabs rtl={rtl} />
@@ -2389,7 +2403,7 @@ function Phase3Repayment({ mode = 'singleOverdue', rtl = false }) {
         <Phase3KeyRows rtl={rtl} late={isBeforeDue ? '0' : '351.6'} />
         {!isBeforeDue && (
           <div className="phase3-actions">
-            <Button>{rtl ? phase3Urdu.repayNow : 'Repay Now'}</Button>
+            <Button onClick={showRepayBatchMessage}>{rtl ? phase3Urdu.repayNow : 'Repay Now'}</Button>
             <Button variant="outline">{rtl ? phase3Urdu.howToPay : 'How to Pay'}</Button>
           </div>
         )}
@@ -2400,7 +2414,7 @@ function Phase3Repayment({ mode = 'singleOverdue', rtl = false }) {
           <Phase3Reminder rtl={rtl} days={5} />
           <Phase3KeyRows rtl={rtl} amount="3,868" due="15 Feb 2026" late="79" />
           <div className="phase3-actions">
-            <Button>{rtl ? phase3Urdu.repayNow : 'Repay Now'}</Button>
+            <Button onClick={showRepayBatchMessage}>{rtl ? phase3Urdu.repayNow : 'Repay Now'}</Button>
             <Button variant="outline">{rtl ? phase3Urdu.howToPay : 'How to Pay'}</Button>
           </div>
         </section>
@@ -2422,11 +2436,13 @@ function Phase3Repayment({ mode = 'singleOverdue', rtl = false }) {
           </details>
         ))}
       </section>
+      <Phase3BatchToast visible={showBatchToast} />
     </PhoneFrame>
   );
 }
 
 function Phase3OrderDetails({ state = 'upcoming', rtl = false }) {
+  const [showBatchToast, setShowBatchToast] = React.useState(false);
   const overdue = state === 'overdue';
   const cool = state === 'cooling';
   const lateFee = overdue ? '562.62' : '0';
@@ -2465,10 +2481,11 @@ function Phase3OrderDetails({ state = 'upcoming', rtl = false }) {
       </section>
       {!cool && (
         <div className="phase3-bottom-actions">
-          <Button>{overdue ? (rtl ? phase3Urdu.settleNow : 'Settle Now') : (rtl ? phase3Urdu.earlySettlement : 'Early Settlement')}</Button>
+          <Button onClick={() => setShowBatchToast(true)}>{overdue ? (rtl ? phase3Urdu.settleNow : 'Settle Now') : (rtl ? phase3Urdu.earlySettlement : 'Early Settlement')}</Button>
           <Button variant="outline">{rtl ? phase3Urdu.howToPay : 'How to Pay'}</Button>
         </div>
       )}
+      <Phase3BatchToast visible={showBatchToast} />
     </PhoneFrame>
   );
 }
