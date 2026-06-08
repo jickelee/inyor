@@ -1,0 +1,45 @@
+<svg width="536" height="190" viewBox="0 0 536 190" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g filter="url(#shadow)">
+    <rect x="1" y="1" width="166" height="188" rx="23" fill="white"/>
+    <rect x="1" y="1" width="166" height="188" rx="23" stroke="#DFE8E5"/>
+    <circle cx="133" cy="31" r="17" fill="#FF6266"/>
+    <path d="M127 25L139 37M139 25L127 37" stroke="white" stroke-width="3.4" stroke-linecap="round"/>
+    <g transform="translate(39 53) rotate(-18 45 43)">
+      <path d="M42 72H55V91H41Z" fill="white" stroke="#34434B" stroke-width="2.5"/>
+      <path d="M28 53C28 35 39 22 57 23C70 24 80 33 79 46C79 52 76 57 72 61L83 69L67 72C61 83 51 89 40 85C32 82 28 70 28 53Z" fill="white" stroke="#34434B" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M26 53C25 30 44 16 65 25C75 30 77 44 68 49C51 50 44 57 26 53Z" fill="#37464B"/>
+    </g>
+    <path d="M116 114V72M116 72L109 80M116 72L123 80" stroke="#FF6868" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 5"/>
+    <text x="84" y="159" text-anchor="middle" fill="#3B4652" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800">Look up</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="185" y="1" width="166" height="188" rx="23" fill="white"/>
+    <rect x="185" y="1" width="166" height="188" rx="23" stroke="#DFE8E5"/>
+    <circle cx="317" cy="31" r="17" fill="#FF6266"/>
+    <path d="M311 25L323 37M323 25L311 37" stroke="white" stroke-width="3.4" stroke-linecap="round"/>
+    <g transform="translate(218 45) rotate(18 49 49)">
+      <path d="M42 72H55V91H41Z" fill="white" stroke="#34434B" stroke-width="2.5"/>
+      <path d="M28 53C28 35 39 22 57 23C70 24 80 33 79 46C79 52 76 57 72 61L83 69L67 72C61 83 51 89 40 85C32 82 28 70 28 53Z" fill="white" stroke="#34434B" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M26 53C25 30 44 16 65 25C75 30 77 44 68 49C51 50 44 57 26 53Z" fill="#37464B"/>
+    </g>
+    <path d="M300 70V112M300 112L293 104M300 112L307 104" stroke="#FF6868" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 5"/>
+    <text x="268" y="159" text-anchor="middle" fill="#3B4652" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800">Look down</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="369" y="1" width="166" height="188" rx="23" fill="white"/>
+    <rect x="369" y="1" width="166" height="188" rx="23" stroke="#DFE8E5"/>
+    <circle cx="501" cy="31" r="17" fill="#FF6266"/>
+    <path d="M495 25L507 37M507 25L495 37" stroke="white" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M445 99H461V116H445Z" fill="white" stroke="#34434B" stroke-width="2.5"/>
+    <path d="M423 76C416 78 414 91 421 97M483 76C490 78 492 91 485 97" stroke="#34434B" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M422 75C422 43 437 27 454 27C471 27 485 43 485 75C485 104 471 121 454 121C436 121 422 104 422 75Z" fill="white" stroke="#34434B" stroke-width="2.5"/>
+    <path d="M420 76C419 44 441 22 467 33C483 40 490 59 483 76C465 72 449 62 420 76Z" fill="#37464B"/>
+    <path d="M423 82C439 93 467 93 484 82V105C468 123 440 123 423 105V82Z" fill="#9FBFB0" stroke="#34434B" stroke-width="2.5" stroke-linejoin="round"/>
+    <text x="452" y="159" text-anchor="middle" fill="#3B4652" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800">Wear mask</text>
+  </g>
+  <defs>
+    <filter id="shadow" x="-4" y="-3" width="545" height="199" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#23413A" flood-opacity=".06"/>
+    </filter>
+  </defs>
+</svg>
