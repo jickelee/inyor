@@ -4693,10 +4693,10 @@ button { cursor: pointer; }
   grid-template-columns: 28px auto minmax(0, 1fr) 76px;
 }
 
-.phone[dir="rtl"] .loan-wallet-option img { grid-column: 4; }
-.phone[dir="rtl"] .loan-wallet-option > span { grid-column: 3; }
-.phone[dir="rtl"] .loan-wallet-option em { grid-column: 2; }
-.phone[dir="rtl"] .loan-wallet-option i { grid-column: 1; }
+.phone[dir="rtl"] .loan-wallet-option img { grid-column: 4; grid-row: 1; }
+.phone[dir="rtl"] .loan-wallet-option > span { grid-column: 3; grid-row: 1; }
+.phone[dir="rtl"] .loan-wallet-option em { grid-column: 2; grid-row: 1; }
+.phone[dir="rtl"] .loan-wallet-option i { grid-column: 1; grid-row: 1; }
 
 .phone[dir="rtl"] .loan-wallet-add {
   grid-template-columns: auto 1fr 32px;
