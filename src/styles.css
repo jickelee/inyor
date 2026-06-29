@@ -4412,13 +4412,34 @@ button { cursor: pointer; }
 }
 
 .loan-wallet-overlay {
-  position: absolute;
-  inset: 0;
+  position: fixed;
+  inset: 98px 0 0;
   z-index: 40;
   display: grid;
   align-items: end;
   background: rgba(6, 19, 17, .54);
   backdrop-filter: blur(5px);
+}
+
+/* Establish the phone as the fixed-position containing block. This keeps the
+   sheet pinned to the visible screen instead of the long Summary document. */
+.loan-summary-phone:has(.loan-wallet-overlay) {
+  transform: translateZ(0);
+}
+
+.youth-theme .loan-summary-phone .loan-wallet-overlay {
+  inset-block-start: 106px;
+}
+
+/* Keep Loan Summary fixed behind the wallet sheet. The sheet remains the only
+   scrollable surface while it is open, so repayment content cannot leak in. */
+.loan-summary-phone:has(.loan-wallet-overlay) .screen {
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+.loan-wallet-overlay {
+  overscroll-behavior: contain;
 }
 
 .loan-wallet-sheet {
