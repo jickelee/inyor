@@ -2099,9 +2099,17 @@ function ApplicationDeclinedReferencePage({ rtl = false }) {
   );
 }
 
-function LoanSummary({ rtl = false, expired = false }) {
+function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed' }) {
   const [showLateFeeInfo, setShowLateFeeInfo] = React.useState(false);
   const [showWalletUnavailable, setShowWalletUnavailable] = React.useState(false);
+  const hasPreviewWallet = initialWalletFlow === 'added';
+  const [walletFlow, setWalletFlow] = React.useState(initialWalletFlow === 'added' ? 'select' : initialWalletFlow);
+  const [wallets, setWallets] = React.useState([
+    { id: 'easypaisa-primary', provider: 'Easypaisa', number: '****67347', logo: walletLogos.easypaisa },
+    { id: 'jazzcash-backup', provider: 'JazzCash', number: '****21408', logo: walletLogos.jazzcash },
+    ...(hasPreviewWallet ? [{ id: 'jazzcash-new', provider: 'JazzCash', number: '****90821', logo: walletLogos.jazzcash, isNew: true }] : []),
+  ]);
+  const [selectedWalletId, setSelectedWalletId] = React.useState(hasPreviewWallet ? 'jazzcash-new' : 'easypaisa-primary');
   const [secondsLeft, setSecondsLeft] = React.useState(expired ? 0 : 1 * 60 * 60 + 50 * 60 + 40);
   React.useEffect(() => {
     if (expired) return undefined;
@@ -2125,6 +2133,19 @@ function LoanSummary({ rtl = false, expired = false }) {
     { label: rtl ? 'تاخیر فیس' : 'Late Fee', value: rtl ? '2.3% روزانہ' : '2.3% per day', lateFee: true },
     { label: rtl ? 'APR' : 'APR', value: '273%' },
   ];
+  const selectedWallet = wallets.find((wallet) => wallet.id === selectedWalletId) || wallets[0];
+  const addWallet = ({ provider, number }) => {
+    const newWallet = {
+      id: `${provider.toLowerCase()}-${number}`,
+      provider,
+      number: `****${number.slice(-5)}`,
+      logo: provider === 'Easypaisa' ? walletLogos.easypaisa : walletLogos.jazzcash,
+      isNew: true,
+    };
+    setWallets((current) => [...current, newWallet]);
+    setSelectedWalletId(newWallet.id);
+    setWalletFlow('select');
+  };
   return (
     <PhoneFrame title={rtl ? 'قرض کا خلاصہ' : 'Loan Summary'} rtl={rtl} noNav className="loan-summary-phone">
       <section className="matched-plan-card">
@@ -2179,8 +2200,19 @@ function LoanSummary({ rtl = false, expired = false }) {
         <div><span>{rtl ? 'دوسری قسط کی تاریخ' : '2nd Installment Date'}</span><strong>1-Mar-2026</strong></div>
         <div><span>{rtl ? 'دوسری قسط کی رقم' : '2nd Installment Amount'}</span><strong>PKR 3,575</strong></div>
       </section>
-      <section className="summary-card">
-        <div><span>{rtl ? 'موبائل والٹ' : 'Mobile Wallet'}</span><strong>****67347 <ChevronRight size={16} /></strong></div>
+      <section className="summary-card wallet-summary-card" onClick={() => setWalletFlow('select')}>
+        <button
+          className="wallet-summary-trigger"
+          type="button"
+          onClick={() => setWalletFlow('select')}
+          aria-haspopup="dialog"
+        >
+          <span>
+            {rtl ? 'موبائل والٹ' : 'Mobile Wallet'}
+            <small>{selectedWallet.provider}</small>
+          </span>
+          <strong>{selectedWallet.number} {rtl ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}</strong>
+        </button>
       </section>
       <section className="summary-card">
         <div><span>{rtl ? 'کولنگ آف مدت' : 'Cooling off Period'}</span><strong>24H</strong></div>
@@ -2206,7 +2238,23 @@ function LoanSummary({ rtl = false, expired = false }) {
         <WalletUnavailableDialog
           rtl={rtl}
           onClose={() => setShowWalletUnavailable(false)}
-          onModify={() => setShowWalletUnavailable(false)}
+          onModify={() => {
+            setShowWalletUnavailable(false);
+            setWalletFlow('select');
+          }}
+        />
+      )}
+      {walletFlow !== 'closed' && (
+        <LoanWalletFlow
+          rtl={rtl}
+          mode={walletFlow}
+          wallets={wallets}
+          selectedWalletId={selectedWalletId}
+          onSelect={setSelectedWalletId}
+          onClose={() => setWalletFlow('closed')}
+          onAdd={() => setWalletFlow('add')}
+          onBack={() => setWalletFlow('select')}
+          onSave={addWallet}
         />
       )}
       {showLateFeeInfo && (
@@ -2225,6 +2273,70 @@ function LoanSummary({ rtl = false, expired = false }) {
         </div>
       )}
     </PhoneFrame>
+  );
+}
+
+function LoanWalletFlow({ rtl = false, mode, wallets, selectedWalletId, onSelect, onClose, onAdd, onBack, onSave }) {
+  const titleId = React.useId();
+  const [provider, setProvider] = React.useState('Easypaisa');
+  const [number, setNumber] = React.useState('03123490821');
+  const isAdd = mode === 'add';
+  return (
+    <div className="loan-wallet-overlay" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={onClose}>
+      <section className="loan-wallet-sheet" dir={rtl ? 'rtl' : 'ltr'} onClick={(event) => event.stopPropagation()}>
+        <div className="sheet-grabber" />
+        <header className="loan-wallet-head">
+          {isAdd && (
+            <button type="button" className="wallet-sheet-back" onClick={onBack} aria-label={rtl ? 'واپس' : 'Back'}>
+              {rtl ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            </button>
+          )}
+          <div>
+            <h3 id={titleId}>{isAdd ? (rtl ? 'نیا والٹ شامل کریں' : 'Add a new wallet') : (rtl ? 'موبائل والٹ منتخب کریں' : 'Select mobile wallet')}</h3>
+            <p>{isAdd ? (rtl ? 'والٹ آپ کے نام پر رجسٹرڈ ہونا چاہیے۔' : 'The wallet must be registered in your name.') : (rtl ? 'رقم وصول کرنے کے لیے ایک اکاؤنٹ منتخب کریں۔' : 'Choose the account that should receive your funds.')}</p>
+          </div>
+          <button type="button" className="wallet-sheet-close" onClick={onClose} aria-label={rtl ? 'بند کریں' : 'Close'}><X size={20} /></button>
+        </header>
+
+        {isAdd ? (
+          <div className="loan-wallet-add-form">
+            <span className="wallet-field-label">{rtl ? 'والٹ فراہم کنندہ' : 'Wallet provider'}</span>
+            <div className="wallet-provider-options">
+              {['Easypaisa', 'JazzCash'].map((name) => (
+                <button type="button" key={name} className={provider === name ? 'selected' : ''} onClick={() => setProvider(name)}>
+                  <img src={name === 'Easypaisa' ? walletLogos.easypaisa : walletLogos.jazzcash} alt={name} />
+                  {provider === name && <Check size={18} />}
+                </button>
+              ))}
+            </div>
+            <label className="wallet-add-number">
+              <span>{rtl ? 'موبائل والٹ نمبر' : 'Mobile wallet number'}</span>
+              <input dir="ltr" inputMode="numeric" value={number} onChange={(event) => setNumber(event.target.value.replace(/\D/g, '').slice(0, 11))} />
+            </label>
+            <div className="wallet-owner-note"><ShieldCheck size={18} /><span>{rtl ? 'نام اور CNIC کی خودکار تصدیق ہوگی۔' : 'Account name and CNIC will be verified automatically.'}</span></div>
+            <Button type="button" disabled={number.length !== 11} onClick={() => onSave({ provider, number })}>{rtl ? 'والٹ شامل کریں' : 'Add wallet'}</Button>
+          </div>
+        ) : (
+          <>
+            <div className="loan-wallet-list">
+              {wallets.map((wallet) => {
+                const selected = wallet.id === selectedWalletId;
+                return (
+                  <button type="button" className={`loan-wallet-option ${selected ? 'selected' : ''}`} key={wallet.id} onClick={() => onSelect(wallet.id)}>
+                    <img src={wallet.logo} alt={`${wallet.provider} logo`} />
+                    <span><strong>{wallet.provider}</strong><small>{wallet.number}</small></span>
+                    {wallet.isNew && <em>{rtl ? 'نیا' : 'New'}</em>}
+                    <i>{selected && <Check size={16} />}</i>
+                  </button>
+                );
+              })}
+            </div>
+            <button type="button" className="loan-wallet-add" onClick={onAdd}><span>+</span>{rtl ? 'نیا والٹ شامل کریں' : 'Add a new wallet'}{rtl ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}</button>
+            <Button type="button" onClick={onClose}>{rtl ? 'یہ والٹ استعمال کریں' : 'Use selected wallet'}</Button>
+          </>
+        )}
+      </section>
+    </div>
   );
 }
 
@@ -2790,6 +2902,9 @@ const screenPairs = [
 ];
 
 const phase3RepaymentPairs = [
+  ['Phase 3 Repayment / Loan summary wallet selector', (rtl) => <LoanSummary rtl={rtl} initialWalletFlow="select" />],
+  ['Phase 3 Repayment / Loan summary add new wallet', (rtl) => <LoanSummary rtl={rtl} initialWalletFlow="add" />],
+  ['Phase 3 Repayment / Loan summary new wallet selected', (rtl) => <LoanSummary rtl={rtl} initialWalletFlow="added" />],
   ['Phase 3 Repayment / Single bill overdue expanded', (rtl) => <Phase3Repayment rtl={rtl} mode="singleOverdue" />],
   ['Phase 3 Repayment / Single bill before due', (rtl) => <Phase3Repayment rtl={rtl} mode="beforeDue" />],
   ['Phase 3 Repayment / Multiple bills overdue', (rtl) => <Phase3Repayment rtl={rtl} mode="multiOverdue" />],
