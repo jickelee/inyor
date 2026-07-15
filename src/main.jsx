@@ -2200,18 +2200,24 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
         <div><span>{rtl ? 'دوسری قسط کی تاریخ' : '2nd Installment Date'}</span><strong>1-Mar-2026</strong></div>
         <div><span>{rtl ? 'دوسری قسط کی رقم' : '2nd Installment Amount'}</span><strong>PKR 3,575</strong></div>
       </section>
-      <section className="summary-card wallet-summary-card" onClick={() => setWalletFlow('select')}>
+      <section className="summary-card wallet-summary-card">
         <button
           className="wallet-summary-trigger"
           type="button"
           onClick={() => setWalletFlow('select')}
           aria-haspopup="dialog"
         >
-          <span>
-            {rtl ? 'موبائل والٹ' : 'Mobile Wallet'}
-            <small>{selectedWallet.provider}</small>
+          <span className="wallet-summary-copy">
+            <em>{rtl ? 'موبائل والٹ' : 'Mobile Wallet'}</em>
+            <small>{rtl ? 'رقم وصول کرنے والا اکاؤنٹ' : 'Account to receive funds'}</small>
           </span>
-          <strong>{selectedWallet.number} {rtl ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}</strong>
+          <span className="wallet-summary-selected">
+            <span>
+              <strong>{selectedWallet.provider}</strong>
+              <small>{selectedWallet.number}</small>
+            </span>
+            {rtl ? <ChevronLeft size={17} /> : <ChevronRight size={17} />}
+          </span>
         </button>
       </section>
       <section className="summary-card">
