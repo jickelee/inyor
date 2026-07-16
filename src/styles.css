@@ -4905,25 +4905,50 @@ button { cursor: pointer; }
 }
 
 .wallet-otp-target {
-  display: grid;
-  gap: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 12px 14px;
   border: 1px solid #dfe8e5;
   border-radius: 14px;
   background: #f7fbf9;
 }
 
-.wallet-otp-target span {
+.wallet-otp-target img {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  object-fit: contain;
+  padding: 5px;
+  border-radius: 11px;
+  background: #fff;
+}
+
+.wallet-otp-identity {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  text-align: start;
+}
+
+.wallet-otp-identity span {
   color: #687581;
   font-size: 12px;
   font-weight: 800;
 }
 
-.wallet-otp-target strong {
+.wallet-otp-identity strong {
   color: #101827;
   font-size: 16px;
   font-weight: 900;
   letter-spacing: .06em;
+  text-align: start;
+}
+
+.phone[dir="rtl"] .wallet-otp-identity strong {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: right;
 }
 
 .wallet-otp-box {
@@ -10787,4 +10812,62 @@ button { cursor: pointer; }
 .phone[dir="rtl"].phase3-phone .phase3-wallet h3,
 .phone[dir="rtl"].phase3-phone .phase3-wallet ol {
   direction: rtl;
+}
+
+/* Keep the repayment alert icon attached to its message in both reading
+   directions. The previous RTL grid placed them at opposite card edges. */
+.phase3-reminder {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.phase3-reminder svg {
+  flex: 0 0 38px;
+}
+
+.phase3-reminder p {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.phone[dir="rtl"].phase3-phone .phase3-reminder {
+  direction: rtl;
+}
+
+/* Urdu order details read label -> value from the right, while compact
+   status pills stay next to their installment title instead of stretching. */
+.phone[dir="rtl"].phase3-order-phone .phase3-detail-list div,
+.phone[dir="rtl"].phase3-order-phone .phase3-installment-card > div:not(.phase3-installment-top) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.phone[dir="rtl"].phase3-order-phone .phase3-detail-list div > span,
+.phone[dir="rtl"].phase3-order-phone .phase3-installment-card > div:not(.phase3-installment-top) > span {
+  grid-column: 1;
+  text-align: right;
+}
+
+.phone[dir="rtl"].phase3-order-phone .phase3-detail-list div > strong,
+.phone[dir="rtl"].phase3-order-phone .phase3-installment-card > div:not(.phase3-installment-top) > strong {
+  grid-column: 2;
+  text-align: left;
+}
+
+.phone[dir="rtl"].phase3-order-phone .phase3-installment-top {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.phone[dir="rtl"].phase3-order-phone .phase3-installment-top h3 {
+  grid-column: 1;
+  text-align: right;
+}
+
+.phone[dir="rtl"].phase3-order-phone .phase3-installment-top > span {
+  grid-column: 2;
+  width: max-content;
+  max-width: 132px;
+  justify-self: start;
+  padding-inline: 12px;
 }

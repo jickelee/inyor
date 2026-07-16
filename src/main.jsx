@@ -2420,8 +2420,11 @@ function LoanWalletFlow({ rtl = false, mode, initialStep = 'form', wallets, sele
         {isVerify ? (
           <div className="loan-wallet-otp-form">
             <div className="wallet-otp-target">
-              <span>{provider}</span>
-              <strong dir="ltr">{number}</strong>
+              <img src={provider === 'Easypaisa' ? walletLogos.easypaisa : walletLogos.jazzcash} alt={`${provider} logo`} />
+              <div className="wallet-otp-identity">
+                <span>{provider}</span>
+                <strong dir="ltr">{number}</strong>
+              </div>
             </div>
             <div className="wallet-otp-box" aria-label={rtl ? 'تصدیقی کوڈ' : 'Verification code'}>
               {['4', '3', '5', '6', '6', '7'].map((digit, index) => <span key={`${digit}-${index}`}>{digit}</span>)}
@@ -2536,7 +2539,7 @@ const phase3Urdu = {
   amountDue: 'اس مدت کی رقم',
   paidUp: 'ادا شدہ رقم',
   dueDate: 'واجب الادا تاریخ',
-  lateFee: 'تاخیر فیس',
+  lateFee: 'تاخیر کی فیس',
   loanId: 'قرض آئی ڈی',
   copy: 'کاپی',
   copied: 'کاپی ہو گیا',
@@ -2549,16 +2552,16 @@ const phase3Urdu = {
   other: 'دیگر اقساط',
   upcoming: 'آنے والی',
   paid: 'ادا شدہ',
-  daysOverdue: (days) => `${days} دن تاخیر`,
+  daysOverdue: (days) => `${days} دن کی تاخیر`,
   markup: 'مارک اپ',
   couponApplied: 'کوپن لاگو',
   terms: 'مدت',
   service: 'سروس فیس',
   agreement: 'قرض معاہدہ دیکھیں',
-  plan: 'ادائیگی پلان',
+  plan: 'ادائیگی کا منصوبہ',
   unpaid: 'غیر ادا شدہ اقساط',
-  repaymentAmount: 'ادائیگی رقم',
-  repaymentDate: 'ادائیگی تاریخ',
+  repaymentAmount: 'ادائیگی کی رقم',
+  repaymentDate: 'ادائیگی کی تاریخ',
   earlySettlement: 'قبل از وقت ادائیگی',
   earlySettlementRequested: 'یہ لون آئی ڈی صرف آج ادائیگی کے لیے موثر ہے۔ میعاد ختم ہونے کے بعد براہ کرم قبل از وقت ادائیگی کی نئی درخواست جمع کریں۔',
   settlementCountdown: 'ادائیگی کا وقت 23:50 پر ختم ہوگا',
