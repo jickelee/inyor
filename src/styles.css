@@ -4905,25 +4905,50 @@ button { cursor: pointer; }
 }
 
 .wallet-otp-target {
-  display: grid;
-  gap: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 12px 14px;
   border: 1px solid #dfe8e5;
   border-radius: 14px;
   background: #f7fbf9;
 }
 
-.wallet-otp-target span {
+.wallet-otp-target img {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  object-fit: contain;
+  padding: 5px;
+  border-radius: 11px;
+  background: #fff;
+}
+
+.wallet-otp-identity {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  text-align: start;
+}
+
+.wallet-otp-identity span {
   color: #687581;
   font-size: 12px;
   font-weight: 800;
 }
 
-.wallet-otp-target strong {
+.wallet-otp-identity strong {
   color: #101827;
   font-size: 16px;
   font-weight: 900;
   letter-spacing: .06em;
+  text-align: start;
+}
+
+.phone[dir="rtl"] .wallet-otp-identity strong {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: right;
 }
 
 .wallet-otp-box {
@@ -5152,6 +5177,10 @@ button { cursor: pointer; }
 .coupon-option.selected i {
   border-color: #0a8f72;
   background: #0a8f72;
+}
+
+.coupon-select-confirm {
+  margin-top: 2px;
 }
 
 .funds-result {
@@ -10506,30 +10535,84 @@ button { cursor: pointer; }
   line-height: 1.45;
 }
 
-.phase3-settlement-countdown {
+.phase3-early-settlement-result > p strong {
+  color: #9a5b00;
+  font-weight: 950;
+}
+
+.phase3-settlement-summary {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #dfe8ee;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 9px 20px rgba(17,24,39,.045);
+}
+
+.phase3-settlement-summary h3 {
+  margin: 0;
+  color: var(--p3-ink);
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.youth-theme .phase3-phone .phase3-settlement-summary h3 {
+  color: var(--p3-ink);
+}
+
+.phase3-settlement-rows {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid #e6edf1;
+  border-radius: 12px;
+  background: #fbfcfd;
+}
+
+.phase3-settlement-rows > div {
+  min-height: 40px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
-  padding: 12px;
-  border: 1px solid #f0c66e;
-  border-radius: 12px;
-  color: #6e4508;
-  background: #fff3d8;
+  padding: 8px 11px;
+  border-bottom: 1px solid #e9eff2;
 }
 
-.phase3-settlement-countdown span {
+.phase3-settlement-rows > div:last-child {
+  border-bottom: 0;
+}
+
+.phase3-settlement-rows > div.total {
+  min-height: 86px;
+  background: #eaf8f3;
+}
+
+.phase3-settlement-rows span {
+  color: var(--p3-muted);
   font-size: 12px;
   font-weight: 800;
-  line-height: 1.35;
 }
 
-.phase3-settlement-countdown strong {
-  color: #b45309;
-  font-size: 19px;
+.phase3-settlement-rows strong {
+  color: var(--p3-ink);
+  font-size: 13px;
   font-weight: 950;
-  letter-spacing: .04em;
   white-space: nowrap;
+}
+
+.phase3-settlement-rows .total span,
+.phase3-settlement-rows .total strong {
+  color: var(--p3-green);
+  font-size: 14px;
+}
+
+.phase3-settlement-rows .total small {
+  grid-column: 1 / -1;
+  color: #4f6f66;
+  font-size: 10px;
+  font-weight: 750;
+  line-height: 1.4;
 }
 
 .phase3-history-card {
@@ -10787,4 +10870,62 @@ button { cursor: pointer; }
 .phone[dir="rtl"].phase3-phone .phase3-wallet h3,
 .phone[dir="rtl"].phase3-phone .phase3-wallet ol {
   direction: rtl;
+}
+
+/* Keep the repayment alert icon attached to its message in both reading
+   directions. The previous RTL grid placed them at opposite card edges. */
+.phase3-reminder {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.phase3-reminder svg {
+  flex: 0 0 38px;
+}
+
+.phase3-reminder p {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.phone[dir="rtl"].phase3-phone .phase3-reminder {
+  direction: rtl;
+}
+
+/* Urdu order details read label -> value from the right, while compact
+   status pills stay next to their installment title instead of stretching. */
+.phone[dir="rtl"].phase3-order-phone .phase3-detail-list div,
+.phone[dir="rtl"].phase3-order-phone .phase3-installment-card > div:not(.phase3-installment-top) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.phone[dir="rtl"].phase3-order-phone .phase3-detail-list div > span,
+.phone[dir="rtl"].phase3-order-phone .phase3-installment-card > div:not(.phase3-installment-top) > span {
+  grid-column: 1;
+  text-align: right;
+}
+
+.phone[dir="rtl"].phase3-order-phone .phase3-detail-list div > strong,
+.phone[dir="rtl"].phase3-order-phone .phase3-installment-card > div:not(.phase3-installment-top) > strong {
+  grid-column: 2;
+  text-align: left;
+}
+
+.phone[dir="rtl"].phase3-order-phone .phase3-installment-top {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.phone[dir="rtl"].phase3-order-phone .phase3-installment-top h3 {
+  grid-column: 1;
+  text-align: right;
+}
+
+.phone[dir="rtl"].phase3-order-phone .phase3-installment-top > span {
+  grid-column: 2;
+  width: max-content;
+  max-width: 132px;
+  justify-self: start;
+  padding-inline: 12px;
 }
