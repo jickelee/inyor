@@ -1391,7 +1391,7 @@ function WalletConfirmDialog() {
   );
 }
 
-function WalletUnavailableDialog({ rtl = false, onModify, onClose }) {
+function WalletUnavailableDialog({ rtl = false, canModify = true, locked = false, onModify, onClose }) {
   return (
     <div
       className="loan-info-overlay"
@@ -1412,9 +1412,13 @@ function WalletUnavailableDialog({ rtl = false, onModify, onClose }) {
             : 'The wallet provider says this account is currently unavailable to receive funds.'}
         </p>
         <p>
-          {rtl
-            ? 'درخواست جاری رکھنے کے لیے براہ کرم دوسرا Easypaisa یا JazzCash اکاؤنٹ استعمال کریں۔'
-            : 'Please update your Easypaisa or JazzCash account to continue this application.'}
+          {locked
+            ? (rtl
+              ? 'یہ درخواست فی الحال والٹ تبدیل کرنے کی اجازت نہیں دیتی۔ براہ کرم کسٹمر سروس سے رابطہ کریں۔'
+              : 'This application cannot modify the wallet right now. Please contact customer service for help.')
+            : (rtl
+              ? 'درخواست جاری رکھنے کے لیے براہ کرم دوسرا Easypaisa یا JazzCash اکاؤنٹ استعمال کریں۔'
+              : 'Please update your Easypaisa or JazzCash account to continue this application.')}
         </p>
         <div className="wallet-confirm-details">
           <ResultField label={rtl ? 'موبائل والٹ' : 'Mobile Wallet'} value="Easypaisa" />
@@ -1423,7 +1427,11 @@ function WalletUnavailableDialog({ rtl = false, onModify, onClose }) {
         </div>
         <div className="wallet-confirm-actions">
           <Button variant="outline" wide={false} type="button" onClick={onClose}>{rtl ? 'بعد میں' : 'Later'}</Button>
-          <Button wide={false} type="button" onClick={onModify}>{rtl ? 'والٹ تبدیل کریں' : 'Modify Wallet'}</Button>
+          {canModify ? (
+            <Button wide={false} type="button" onClick={onModify}>{rtl ? 'والٹ تبدیل کریں' : 'Modify Wallet'}</Button>
+          ) : (
+            <Button wide={false} type="button" onClick={onClose}>{rtl ? 'سمجھ گیا' : 'Got it'}</Button>
+          )}
         </div>
       </div>
     </div>
@@ -2099,15 +2107,28 @@ function ApplicationDeclinedReferencePage({ rtl = false }) {
   );
 }
 
-function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed' }) {
+function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed', walletState = 'available', couponState = 'applied', initialCouponDialog = false, boundWalletType = null, initialWalletStep = 'form', showWalletAddAction = true }) {
   const [showLateFeeInfo, setShowLateFeeInfo] = React.useState(false);
   const [showWalletUnavailable, setShowWalletUnavailable] = React.useState(false);
+  const [showCouponSheet, setShowCouponSheet] = React.useState(initialCouponDialog);
   const hasPreviewWallet = initialWalletFlow === 'added';
+  const startsWithWallet = walletState !== 'none';
+  const walletUnavailable = walletState === 'unavailableEditable' || walletState === 'unavailableLocked';
+  const walletEditable = walletState !== 'unavailableLocked';
   const [walletFlow, setWalletFlow] = React.useState(initialWalletFlow === 'added' ? 'select' : initialWalletFlow);
   const [wallets, setWallets] = React.useState([
-    { id: 'easypaisa-primary', provider: 'Easypaisa', number: '****67347', logo: walletLogos.easypaisa },
-    { id: 'jazzcash-backup', provider: 'JazzCash', number: '****21408', logo: walletLogos.jazzcash },
-    ...(hasPreviewWallet ? [{ id: 'jazzcash-new', provider: 'JazzCash', number: '****90821', logo: walletLogos.jazzcash, isNew: true }] : []),
+    ...(boundWalletType === 'Easypaisa' ? [
+      { id: 'easypaisa-primary', provider: 'Easypaisa', number: '****67347', logo: walletLogos.easypaisa, status: 'normal' },
+    ] : boundWalletType === 'JazzCash' ? [
+      { id: 'jazzcash-backup', provider: 'JazzCash', number: '****21408', logo: walletLogos.jazzcash },
+    ] : startsWithWallet ? [
+      { id: 'easypaisa-primary', provider: 'Easypaisa', number: '****67347', logo: walletLogos.easypaisa, status: hasPreviewWallet ? 'unavailableLocked' : 'normal' },
+      { id: 'jazzcash-backup', provider: 'JazzCash', number: '****21408', logo: walletLogos.jazzcash },
+    ] : []),
+    ...(hasPreviewWallet ? [
+      { id: 'jazzcash-verify-failed', provider: 'JazzCash', number: '****56012', logo: walletLogos.jazzcash, status: 'verifyFailed' },
+      { id: 'jazzcash-new', provider: 'JazzCash', number: '****90821', logo: walletLogos.jazzcash, isNew: true },
+    ] : []),
   ]);
   const [selectedWalletId, setSelectedWalletId] = React.useState(hasPreviewWallet ? 'jazzcash-new' : 'easypaisa-primary');
   const [secondsLeft, setSecondsLeft] = React.useState(expired ? 0 : 1 * 60 * 60 + 50 * 60 + 40);
@@ -2123,8 +2144,11 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
     Math.floor((secondsLeft % 3600) / 60),
     secondsLeft % 60,
   ].map((value) => String(value).padStart(2, '0')).join(':');
+  const couponRow = couponState === 'available'
+    ? { label: rtl ? 'کوپن' : 'Coupon', value: rtl ? '3 دستیاب' : '3 Available', couponLink: true, couponAvailable: true }
+    : { label: rtl ? 'کوپن لاگو' : 'Coupon Applied', value: '+200', couponLink: true, couponApplied: true };
   const rows = [
-    { label: rtl ? 'کوپن لاگو' : 'Coupon Applied', value: '-PKR 200', couponLink: true },
+    ...(couponState === 'none' ? [] : [couponRow]),
     { label: rtl ? 'مارک اپ' : 'Markup', value: 'PKR 1035' },
     { label: rtl ? 'سروس فیس' : 'Service Fee', value: 'PKR 115' },
     { label: rtl ? 'ادائیگی کی تاریخ' : 'Disbursement Date', value: '27 Jan 2026' },
@@ -2134,6 +2158,12 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
     { label: rtl ? 'APR' : 'APR', value: '273%' },
   ];
   const selectedWallet = wallets.find((wallet) => wallet.id === selectedWalletId) || wallets[0];
+  const hasWallet = wallets.length > 0;
+  const blockedWalletProviders = boundWalletType ? [boundWalletType] : [];
+  const openWalletAction = () => {
+    if (!walletEditable) return;
+    setWalletFlow(hasWallet ? 'select' : 'add');
+  };
   const addWallet = ({ provider, number }) => {
     const newWallet = {
       id: `${provider.toLowerCase()}-${number}`,
@@ -2175,22 +2205,29 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
       <section className="summary-card">
         <h3>{rtl ? 'قرض کی تفصیلات' : 'Loan Details'}</h3>
         {rows.map((row) => (
-          <div key={row.label}>
-            <span className="summary-label">
-              {row.label}
-              {row.lateFee && (
-                <button
-                  className="fee-info-button"
-                  type="button"
-                  aria-label={rtl ? 'تاخیر فیس کی وضاحت' : 'Late fee explanation'}
-                  onClick={() => setShowLateFeeInfo(true)}
-                >
-                  <Info size={14} />
-                </button>
-              )}
-            </span>
-            <strong>{row.value}{row.couponLink && (rtl ? <ChevronLeft size={16} /> : <ChevronRight size={16} />)}</strong>
-          </div>
+          row.couponLink ? (
+            <button type="button" className={`summary-row-button ${row.couponAvailable ? 'coupon-available' : ''}`} key={row.label} onClick={() => setShowCouponSheet(true)}>
+              <span className="summary-label">{row.label}</span>
+              <strong>{row.value}{rtl ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}</strong>
+            </button>
+          ) : (
+            <div key={row.label}>
+              <span className="summary-label">
+                {row.label}
+                {row.lateFee && (
+                  <button
+                    className="fee-info-button"
+                    type="button"
+                    aria-label={rtl ? 'تاخیر فیس کی وضاحت' : 'Late fee explanation'}
+                    onClick={() => setShowLateFeeInfo(true)}
+                  >
+                    <Info size={14} />
+                  </button>
+                )}
+              </span>
+              <strong>{row.value}</strong>
+            </div>
+          )
         ))}
       </section>
       <section className="summary-card">
@@ -2202,21 +2239,40 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
       </section>
       <section className="summary-card wallet-summary-card">
         <button
-          className="wallet-summary-trigger"
+          className={`wallet-summary-trigger ${walletUnavailable ? 'unavailable' : ''} ${!hasWallet ? 'empty' : ''}`}
           type="button"
-          onClick={() => setWalletFlow('select')}
+          onClick={openWalletAction}
           aria-haspopup="dialog"
+          disabled={!walletEditable}
         >
           <span className="wallet-summary-copy">
             <em>{rtl ? 'موبائل والٹ' : 'Mobile Wallet'}</em>
-            <small>{rtl ? 'رقم وصول کرنے والا اکاؤنٹ' : 'Account to receive funds'}</small>
+            <small>
+              {!hasWallet
+                ? (rtl ? 'رقم وصول کرنے سے پہلے والٹ شامل کریں' : 'Add a wallet before receiving funds')
+                : walletUnavailable
+                  ? (rtl ? 'یہ اکاؤنٹ فی الحال فنڈز وصول نہیں کر سکتا' : 'This account cannot receive funds now')
+                  : (rtl ? 'رقم وصول کرنے والا اکاؤنٹ' : 'Account to receive funds')}
+            </small>
           </span>
           <span className="wallet-summary-selected">
-            <span>
-              <strong>{selectedWallet.provider}</strong>
-              <small>{selectedWallet.number}</small>
-            </span>
-            {rtl ? <ChevronLeft size={17} /> : <ChevronRight size={17} />}
+            {!hasWallet ? (
+              <>
+                <span className="wallet-summary-action-mark">+</span>
+                <span>
+                  <strong>{rtl ? 'شامل کریں' : 'Add'}</strong>
+                </span>
+              </>
+            ) : (
+              <>
+                <span>
+                  <strong>{selectedWallet.provider}</strong>
+                  <small>{selectedWallet.number}</small>
+                </span>
+                {walletUnavailable && <em>{rtl ? 'دستیاب نہیں' : 'Unavailable'}</em>}
+                {walletEditable ? (rtl ? <ChevronLeft size={17} /> : <ChevronRight size={17} />) : <LockKeyhole size={16} />}
+              </>
+            )}
           </span>
         </button>
       </section>
@@ -2237,12 +2293,27 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
           <span className="expiry-warning">Your loan information is about to expire. Please apply as soon as possible.</span>
         )}
         <label><input type="checkbox" defaultChecked /> {rtl ? 'میں نے پڑھ لیا اور اتفاق کرتا ہوں' : 'I have read and agree to the'} <button>{rtl ? 'قرض معاہدہ' : 'Loan Agreement'}</button></label>
-        <Button type="button" onClick={() => setShowWalletUnavailable(true)}>{rtl ? 'قبول کریں اور رقم حاصل کریں' : 'Accept & Get Funds'}</Button>
+        <Button
+          type="button"
+          onClick={() => {
+            if (!hasWallet) {
+              setWalletFlow('add');
+              return;
+            }
+            if (walletUnavailable) {
+              setShowWalletUnavailable(true);
+            }
+          }}
+        >
+          {rtl ? 'قبول کریں اور رقم حاصل کریں' : 'Accept & Get Funds'}
+        </Button>
         <button>{rtl ? 'انکار' : 'Decline'}</button>
       </div>
       {showWalletUnavailable && (
         <WalletUnavailableDialog
           rtl={rtl}
+          canModify={walletEditable}
+          locked={!walletEditable}
           onClose={() => setShowWalletUnavailable(false)}
           onModify={() => {
             setShowWalletUnavailable(false);
@@ -2254,6 +2325,7 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
         <LoanWalletFlow
           rtl={rtl}
           mode={walletFlow}
+          initialStep={initialWalletStep}
           wallets={wallets}
           selectedWalletId={selectedWalletId}
           onSelect={setSelectedWalletId}
@@ -2261,6 +2333,8 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
           onAdd={() => setWalletFlow('add')}
           onBack={() => setWalletFlow('select')}
           onSave={addWallet}
+          blockedProviders={blockedWalletProviders}
+          showAddAction={showWalletAddAction}
         />
       )}
       {showLateFeeInfo && (
@@ -2278,43 +2352,108 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
           </div>
         </div>
       )}
+      {showCouponSheet && (
+        <CouponSelectDialog rtl={rtl} applied={couponState === 'applied'} onClose={() => setShowCouponSheet(false)} />
+      )}
     </PhoneFrame>
   );
 }
 
-function LoanWalletFlow({ rtl = false, mode, wallets, selectedWalletId, onSelect, onClose, onAdd, onBack, onSave }) {
+function CouponSelectDialog({ rtl = false, applied = false, onClose }) {
+  const coupons = [
+    { id: 'new-user', title: rtl ? 'نئے صارف کا کوپن' : 'New user coupon', amount: '+200', desc: rtl ? 'اس قرض کے لیے دستیاب' : 'Available for this loan', selected: applied },
+    { id: 'repay', title: rtl ? 'وقت پر ادائیگی کا انعام' : 'On-time reward', amount: '+100', desc: rtl ? 'اگلے قرض پر استعمال کریں' : 'Use on the next loan' },
+    { id: 'service', title: rtl ? 'سروس فیس رعایت' : 'Service fee discount', amount: '+50', desc: rtl ? 'محدود وقت کے لیے' : 'Limited time offer' },
+  ];
+  return (
+    <div className="loan-info-overlay" role="dialog" aria-modal="true" aria-labelledby="coupon-select-title" onClick={onClose}>
+      <div className="coupon-select-modal" onClick={(event) => event.stopPropagation()}>
+        <header className="coupon-select-head">
+          <span><Ticket size={20} /></span>
+          <div>
+            <h3 id="coupon-select-title">{rtl ? 'کوپن منتخب کریں' : 'Select coupon'}</h3>
+            <p>{rtl ? 'اس قرض کے لیے دستیاب کوپن دیکھیں۔' : 'Choose an available coupon for this loan.'}</p>
+          </div>
+          <button type="button" onClick={onClose} aria-label={rtl ? 'بند کریں' : 'Close'}><X size={18} /></button>
+        </header>
+        <div className="coupon-option-list">
+          {coupons.map((coupon) => (
+            <button type="button" className={`coupon-option ${coupon.selected ? 'selected' : ''}`} key={coupon.id}>
+              <span><Ticket size={18} /></span>
+              <div>
+                <strong>{coupon.title}</strong>
+                <small>{coupon.desc}</small>
+              </div>
+              <em>{coupon.amount}</em>
+              <i>{coupon.selected && <Check size={15} />}</i>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LoanWalletFlow({ rtl = false, mode, initialStep = 'form', wallets, selectedWalletId, onSelect, onClose, onAdd, onBack, onSave, blockedProviders = [], showAddAction = true }) {
   const titleId = React.useId();
-  const [provider, setProvider] = React.useState('Easypaisa');
+  const availableProvider = ['Easypaisa', 'JazzCash'].find((name) => !blockedProviders.includes(name)) || 'Easypaisa';
+  const [provider, setProvider] = React.useState(availableProvider);
   const [number, setNumber] = React.useState('03123490821');
   const isAdd = mode === 'add';
+  const isVerify = isAdd && initialStep === 'verify';
+  const hasTypeLimit = blockedProviders.length > 0;
+  const verifyWalletOtp = () => {
+    onSave({ provider, number });
+  };
   return (
     <div className="loan-wallet-overlay" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={onClose}>
       <section className="loan-wallet-sheet" dir={rtl ? 'rtl' : 'ltr'} onClick={(event) => event.stopPropagation()}>
         <div className="sheet-grabber" />
         <header className="loan-wallet-head">
-          {isAdd && (
-            <button type="button" className="wallet-sheet-back" onClick={onBack} aria-label={rtl ? 'واپس' : 'Back'}>
-              {rtl ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-            </button>
-          )}
           <div>
-            <h3 id={titleId}>{isAdd ? (rtl ? 'نیا والٹ شامل کریں' : 'Add a new wallet') : (rtl ? 'موبائل والٹ منتخب کریں' : 'Select mobile wallet')}</h3>
-            <p>{isAdd ? (rtl ? 'والٹ آپ کے نام پر رجسٹرڈ ہونا چاہیے۔' : 'The wallet must be registered in your name.') : (rtl ? 'رقم وصول کرنے کے لیے ایک اکاؤنٹ منتخب کریں۔' : 'Choose the account that should receive your funds.')}</p>
+            <h3 id={titleId}>{isVerify ? (rtl ? 'موبائل نمبر کی تصدیق' : 'Verify mobile number') : isAdd ? (rtl ? 'نیا والٹ شامل کریں' : 'Add a new wallet') : (rtl ? 'موبائل والٹ منتخب کریں' : 'Select mobile wallet')}</h3>
+            <p>{isVerify ? (rtl ? 'ہم نے آپ کے والٹ نمبر پر 6 ہندسوں کا کوڈ بھیجا ہے۔' : 'We sent a 6-digit code to your wallet mobile number.') : isAdd ? (rtl ? 'والٹ آپ کے نام پر رجسٹرڈ ہونا چاہیے۔' : 'The wallet must be registered in your name.') : (rtl ? 'رقم وصول کرنے کے لیے ایک اکاؤنٹ منتخب کریں۔' : 'Choose the account that should receive your funds.')}</p>
           </div>
           <button type="button" className="wallet-sheet-close" onClick={onClose} aria-label={rtl ? 'بند کریں' : 'Close'}><X size={20} /></button>
         </header>
 
-        {isAdd ? (
+        {isVerify ? (
+          <div className="loan-wallet-otp-form">
+            <div className="wallet-otp-target">
+              <span>{provider}</span>
+              <strong dir="ltr">{number}</strong>
+            </div>
+            <div className="wallet-otp-box" aria-label={rtl ? 'تصدیقی کوڈ' : 'Verification code'}>
+              {['4', '3', '5', '6', '6', '7'].map((digit, index) => <span key={`${digit}-${index}`}>{digit}</span>)}
+            </div>
+            <div className="wallet-owner-note"><ShieldCheck size={18} /><span>{rtl ? 'کوڈ صرف اکاؤنٹ تصدیق کے لیے استعمال ہوگا۔' : 'The code is only used to verify this wallet account.'}</span></div>
+            <button type="button" className="wallet-otp-resend">{rtl ? 'کوڈ دوبارہ بھیجیں' : 'Resend code'}</button>
+            <Button type="button" onClick={verifyWalletOtp}>{rtl ? 'والٹ تصدیق کریں' : 'Verify wallet'}</Button>
+          </div>
+        ) : isAdd ? (
           <div className="loan-wallet-add-form">
             <span className="wallet-field-label">{rtl ? 'والٹ فراہم کنندہ' : 'Wallet provider'}</span>
             <div className="wallet-provider-options">
-              {['Easypaisa', 'JazzCash'].map((name) => (
-                <button type="button" key={name} className={provider === name ? 'selected' : ''} onClick={() => setProvider(name)}>
+              {['Easypaisa', 'JazzCash'].map((name) => {
+                const disabled = blockedProviders.includes(name);
+                return (
+                <button type="button" key={name} className={`${provider === name ? 'selected' : ''} ${disabled ? 'disabled' : ''}`} disabled={disabled} onClick={() => setProvider(name)}>
                   <img src={name === 'Easypaisa' ? walletLogos.easypaisa : walletLogos.jazzcash} alt={name} />
-                  {provider === name && <Check size={18} />}
+                  {disabled && <small>{rtl ? 'پہلے سے موجود' : 'Already bound'}</small>}
+                  {provider === name && !disabled && <Check size={18} />}
                 </button>
-              ))}
+              );})}
             </div>
+            {hasTypeLimit && (
+              <div className="wallet-type-limit-note">
+                <Info size={16} />
+                <span>
+                  {rtl
+                    ? `${blockedProviders[0]} پہلے سے منسلک ہے۔ آپ صرف ${availableProvider} شامل کر سکتے ہیں۔`
+                    : `${blockedProviders[0]} is already bound. You can add ${availableProvider} only.`}
+                </span>
+              </div>
+            )}
             <label className="wallet-add-number">
               <span>{rtl ? 'موبائل والٹ نمبر' : 'Mobile wallet number'}</span>
               <input dir="ltr" inputMode="numeric" value={number} onChange={(event) => setNumber(event.target.value.replace(/\D/g, '').slice(0, 11))} />
@@ -2325,19 +2464,35 @@ function LoanWalletFlow({ rtl = false, mode, wallets, selectedWalletId, onSelect
         ) : (
           <>
             <div className="loan-wallet-list">
-              {wallets.map((wallet) => {
+              {wallets.filter((wallet) => wallet.status !== 'unavailableLocked').map((wallet) => {
                 const selected = wallet.id === selectedWalletId;
+                const unavailableLocked = wallet.status === 'unavailableLocked';
+                const verifyFailed = wallet.status === 'verifyFailed';
                 return (
-                  <button type="button" className={`loan-wallet-option ${selected ? 'selected' : ''}`} key={wallet.id} onClick={() => onSelect(wallet.id)}>
+                  <button
+                    type="button"
+                    className={`loan-wallet-option ${selected ? 'selected' : ''} ${unavailableLocked ? 'unavailable locked' : ''} ${verifyFailed ? 'verify-failed' : ''}`}
+                    key={wallet.id}
+                    onClick={() => {
+                      if (unavailableLocked) return;
+                      if (verifyFailed) {
+                        onAdd();
+                        return;
+                      }
+                      onSelect(wallet.id);
+                    }}
+                  >
                     <img src={wallet.logo} alt={`${wallet.provider} logo`} />
                     <span><strong>{wallet.provider}</strong><small>{wallet.number}</small></span>
                     {wallet.isNew && <em>{rtl ? 'نیا' : 'New'}</em>}
-                    <i>{selected && <Check size={16} />}</i>
+                    {unavailableLocked && <em className="danger">{rtl ? 'دستیاب نہیں' : 'Unavailable'}</em>}
+                    {verifyFailed && <em className="warning">{rtl ? 'ناکام' : 'Verify failed'}</em>}
+                    <i>{selected && <Check size={16} />}{unavailableLocked && <LockKeyhole size={14} />}{verifyFailed && (rtl ? <ChevronLeft size={15} /> : <ChevronRight size={15} />)}</i>
                   </button>
                 );
               })}
             </div>
-            <button type="button" className="loan-wallet-add" onClick={onAdd}><span>+</span>{rtl ? 'نیا والٹ شامل کریں' : 'Add a new wallet'}{rtl ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}</button>
+            {showAddAction && <button type="button" className="loan-wallet-add" onClick={onAdd}><span>+</span>{rtl ? 'نیا والٹ شامل کریں' : 'Add a new wallet'}{rtl ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}</button>}
             <Button type="button" onClick={onClose}>{rtl ? 'یہ والٹ استعمال کریں' : 'Use selected wallet'}</Button>
           </>
         )}
@@ -2347,6 +2502,7 @@ function LoanWalletFlow({ rtl = false, mode, wallets, selectedWalletId, onSelect
 }
 
 const phase3Order = {
+  loanId: '583920174612',
   total: '14,628',
   outstanding: '10,900',
   fullOutstanding: '14,628',
@@ -2356,8 +2512,6 @@ const phase3Order = {
   date: '1 Jan 2026',
   service: '436.5',
 };
-
-const phase3BatchMessage = 'Your bill amount is being updated. Please try again later.';
 
 const phase3Installments = [
   { title: '1st Installment', amount: '3,728', due: '16 Jan 2026', repayDate: '20 Jan 2026', late: '211.02', status: 'Paid' },
@@ -2377,13 +2531,21 @@ const phase3Urdu = {
   installmentRepayment: 'قسط کی ادائیگی',
   total: 'کل',
   dueMsg: (date) => `آپ کی ادائیگی ${date} کو واجب الادا ہے۔ براہ کرم وقت پر ادا کریں۔`,
+  dueTodayMsg: 'آج آپ کے بل کی ادائیگی کی تاریخ ہے۔ براہ کرم جلد از جلد ادائیگی کریں۔',
   overdueMsg: (days) => `آپ ${days} دن تاخیر سے ہیں۔ براہ کرم جلد از جلد ادائیگی کریں۔`,
   amountDue: 'اس مدت کی رقم',
   paidUp: 'ادا شدہ رقم',
   dueDate: 'واجب الادا تاریخ',
   lateFee: 'تاخیر فیس',
-  repayNow: 'ابھی ادا کریں',
-  howToPay: 'ادائیگی کا طریقہ',
+  loanId: 'قرض آئی ڈی',
+  copy: 'کاپی',
+  copied: 'کاپی ہو گیا',
+  paymentGuide: 'ادائیگی کی رہنمائی',
+  paymentSteps: [
+    'کسی بھی والٹ ایپ میں 1Bill تلاش کریں',
+    'لون آئی ڈی درج کریں',
+    'ادائیگی مکمل کریں',
+  ],
   other: 'دیگر اقساط',
   upcoming: 'آنے والی',
   paid: 'ادا شدہ',
@@ -2397,8 +2559,9 @@ const phase3Urdu = {
   unpaid: 'غیر ادا شدہ اقساط',
   repaymentAmount: 'ادائیگی رقم',
   repaymentDate: 'ادائیگی تاریخ',
-  settleNow: 'ابھی مکمل ادا کریں',
   earlySettlement: 'قبل از وقت ادائیگی',
+  earlySettlementRequested: 'یہ لون آئی ڈی صرف آج ادائیگی کے لیے موثر ہے۔ میعاد ختم ہونے کے بعد براہ کرم قبل از وقت ادائیگی کی نئی درخواست جمع کریں۔',
+  settlementCountdown: 'ادائیگی کا وقت 23:50 پر ختم ہوگا',
   noData: 'کوئی ڈیٹا نہیں',
   getFunds: 'رقم حاصل کریں',
   completedDate: 'مکمل ہونے کی تاریخ',
@@ -2412,8 +2575,6 @@ const phase3Urdu = {
   selectWallet: 'براہ کرم ادائیگی کے لیے والٹ منتخب کریں۔',
   customerId: 'کسٹمر آئی ڈی',
   payWith: (name) => `${name} سے ادائیگی کیسے کریں؟`,
-  success: 'ادائیگی کامیاب',
-  term: 'قسط',
   titleOrder: 'آرڈر کی تفصیلات',
 };
 
@@ -2471,9 +2632,11 @@ function Phase3AmountSummary({ outstanding = phase3Order.outstanding, showDate =
 }
 
 function Phase3Reminder({ tone = 'overdue', days = 5, date = '31 Jan 2026', rtl = false }) {
-  const text = tone === 'due'
-    ? (rtl ? phase3Urdu.dueMsg(date) : `Your repayment is due on ${date}. Please repay on time.`)
-    : (rtl ? phase3Urdu.overdueMsg(days) : `You are ${days} days overdue. Please repay as soon as possible.`);
+  const text = tone === 'today'
+    ? (rtl ? phase3Urdu.dueTodayMsg : 'Today is your bill repayment date. Please repay as soon as possible.')
+    : tone === 'due'
+      ? (rtl ? phase3Urdu.dueMsg(date) : `Your repayment is due on ${date}. Please repay on time.`)
+      : (rtl ? phase3Urdu.overdueMsg(days) : `You are ${days} days overdue. Please repay as soon as possible.`);
   return (
     <div className={`phase3-reminder ${tone}`}>
       <Bell size={26} fill="currentColor" />
@@ -2482,34 +2645,146 @@ function Phase3Reminder({ tone = 'overdue', days = 5, date = '31 Jan 2026', rtl 
   );
 }
 
-function Phase3KeyRows({ amount = '3,868', due = '31 Jan 2026', late = '351.6', rtl = false }) {
+function Phase3KeyRows({ amount = '3,868', paidUp = '0', due = '31 Jan 2026', late = '351.6', rtl = false }) {
   const showLateFee = late !== '0';
+  const showPaidUp = paidUp !== '0';
   return (
     <div className="phase3-keyrows">
       <div><span>{rtl ? phase3Urdu.amountDue : 'Amount due this period'}</span><strong>PKR {amount}</strong></div>
-      <div><span>{rtl ? phase3Urdu.paidUp : 'Paid-up Amount'}</span><strong>0</strong></div>
+      {showPaidUp && <div><span>{rtl ? phase3Urdu.paidUp : 'Paid-up Amount'}</span><strong>{paidUp}</strong></div>}
       <div><span>{rtl ? phase3Urdu.dueDate : 'Due Date'}</span><strong><Phase3Date>{due}</Phase3Date></strong></div>
       {showLateFee && <div><span>{rtl ? phase3Urdu.lateFee : 'Late Fee'}</span><strong>{late}</strong></div>}
     </div>
   );
 }
 
-function Phase3BatchToast({ visible }) {
-  if (!visible) return null;
+async function copyPhase3LoanId() {
+  try {
+    await navigator.clipboard.writeText(phase3Order.loanId);
+  } catch {
+    const input = document.createElement('textarea');
+    input.value = phase3Order.loanId;
+    input.setAttribute('readonly', '');
+    input.style.position = 'fixed';
+    input.style.opacity = '0';
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+  }
+}
+
+function Phase3PaymentGuideDialog({ rtl = false, initialCopied = false, onClose }) {
+  const [copied, setCopied] = React.useState(initialCopied);
+  const steps = rtl
+    ? phase3Urdu.paymentSteps
+    : ['Find 1Bill in any wallet app', 'Enter your Loan ID', 'Complete the payment'];
+
+  React.useEffect(() => {
+    if (!initialCopied) return undefined;
+    const timer = window.setTimeout(() => setCopied(false), 1600);
+    return () => window.clearTimeout(timer);
+  }, [initialCopied]);
+
+  React.useEffect(() => {
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [onClose]);
+
+  const copyLoanId = async () => {
+    await copyPhase3LoanId();
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1600);
+  };
+
   return (
-    <div className="phase3-batch-toast" role="status">
-      <Info size={18} />
-      <span>{phase3BatchMessage}</span>
+    <div className="phase3-guide-overlay" role="dialog" aria-modal="true" aria-label={rtl ? phase3Urdu.paymentGuide : 'Repayment Guide'} onClick={onClose}>
+      <section className="phase3-guide-sheet" onClick={(event) => event.stopPropagation()}>
+        <div className="phase3-guide-head">
+          <h2>{rtl ? phase3Urdu.paymentGuide : 'Repayment Guide'}</h2>
+          <button type="button" className="phase3-guide-close" onClick={onClose} aria-label={rtl ? 'بند کریں' : 'Close repayment guide'}><X size={20} /></button>
+        </div>
+        <div className="phase3-guide-loan-id">
+          <div>
+            <span>{rtl ? phase3Urdu.loanId : 'Loan ID'}</span>
+            <strong dir="ltr">{phase3Order.loanId}</strong>
+          </div>
+          <button type="button" onClick={copyLoanId} aria-label={rtl ? 'قرض آئی ڈی نقل کریں' : 'Copy Loan ID'}>
+            {copied ? <Check size={17} /> : <Copy size={17} />}
+            <span>{rtl ? (copied ? phase3Urdu.copied : phase3Urdu.copy) : (copied ? 'Copied' : 'Copy')}</span>
+          </button>
+        </div>
+        <ol className="phase3-guide-steps">
+          {steps.map((step) => <li key={step}><span>{step}</span></li>)}
+        </ol>
+      </section>
+    </div>
+  );
+}
+
+function Phase3LoanId({ rtl = false }) {
+  const [copied, setCopied] = React.useState(false);
+  const [showGuide, setShowGuide] = React.useState(false);
+
+  const copyLoanId = async () => {
+    await copyPhase3LoanId();
+    setCopied(true);
+    setShowGuide(true);
+    window.setTimeout(() => setCopied(false), 1600);
+  };
+
+  return (
+    <>
+      <div className="phase3-loan-id">
+        <div>
+          <span>{rtl ? phase3Urdu.loanId : 'Loan ID'}</span>
+          <strong dir="ltr">{phase3Order.loanId}</strong>
+        </div>
+        <button type="button" onClick={copyLoanId} aria-label={rtl ? 'قرض آئی ڈی نقل کریں' : 'Copy Loan ID'}>
+          {copied ? <Check size={17} /> : <Copy size={17} />}
+          <span>{rtl ? (copied ? phase3Urdu.copied : phase3Urdu.copy) : (copied ? 'Copied' : 'Copy')}</span>
+        </button>
+      </div>
+      {showGuide && <Phase3PaymentGuideDialog rtl={rtl} initialCopied onClose={() => setShowGuide(false)} />}
+    </>
+  );
+}
+
+function Phase3SettlementCountdown({ rtl = false }) {
+  const getRemainingSeconds = () => {
+    const now = new Date();
+    const cutoff = new Date(now);
+    cutoff.setHours(23, 50, 0, 0);
+    if (now >= cutoff) cutoff.setDate(cutoff.getDate() + 1);
+    return Math.max(0, Math.floor((cutoff.getTime() - now.getTime()) / 1000));
+  };
+  const [remainingSeconds, setRemainingSeconds] = React.useState(getRemainingSeconds);
+
+  React.useEffect(() => {
+    const timer = window.setInterval(() => setRemainingSeconds(getRemainingSeconds()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const hours = String(Math.floor(remainingSeconds / 3600)).padStart(2, '0');
+  const minutes = String(Math.floor((remainingSeconds % 3600) / 60)).padStart(2, '0');
+  const seconds = String(remainingSeconds % 60).padStart(2, '0');
+
+  return (
+    <div className="phase3-settlement-countdown" role="timer" aria-label={rtl ? phase3Urdu.settlementCountdown : 'Time remaining until 23:50'}>
+      <span>{rtl ? phase3Urdu.settlementCountdown : 'Payment window closes at 23:50'}</span>
+      <strong dir="ltr">{hours}:{minutes}:{seconds}</strong>
     </div>
   );
 }
 
 function Phase3Repayment({ mode = 'singleOverdue', rtl = false }) {
-  const [showBatchToast, setShowBatchToast] = React.useState(false);
   const isBeforeDue = mode === 'beforeDue';
+  const isDueToday = mode === 'dueToday';
   const isMulti = mode === 'multiOverdue';
   const currentDays = mode === 'twentyDays' || isMulti ? 20 : 5;
-  const showRepayBatchMessage = () => setShowBatchToast(true);
   return (
     <PhoneFrame tab="repay" rtl={rtl} className="phase3-phone phase3-repay-phone">
       <Phase3Tabs rtl={rtl} />
@@ -2517,12 +2792,11 @@ function Phase3Repayment({ mode = 'singleOverdue', rtl = false }) {
       <section className="phase3-section">
         <h2>{rtl ? phase3Urdu.installmentRepayment : 'Installment Repayment'}</h2>
         <h3>{phase3InstallmentTitle(isBeforeDue ? '1st Installment' : '2nd Installment', rtl)} / 4 {rtl ? phase3Urdu.total : 'Total'}</h3>
-        <Phase3Reminder rtl={rtl} tone={isBeforeDue ? 'due' : 'overdue'} days={currentDays} />
-        <Phase3KeyRows rtl={rtl} late={isBeforeDue ? '0' : '351.6'} />
+        <Phase3Reminder rtl={rtl} tone={isDueToday ? 'today' : isBeforeDue ? 'due' : 'overdue'} days={currentDays} />
+        <Phase3KeyRows rtl={rtl} paidUp={isMulti ? '1,000' : '0'} late={isBeforeDue || isDueToday ? '0' : '351.6'} />
         {!isBeforeDue && (
           <div className="phase3-actions">
-            <Button onClick={showRepayBatchMessage}>{rtl ? phase3Urdu.repayNow : 'Repay Now'}</Button>
-            <Button variant="outline">{rtl ? phase3Urdu.howToPay : 'How to Pay'}</Button>
+            <Phase3LoanId rtl={rtl} />
           </div>
         )}
       </section>
@@ -2532,8 +2806,7 @@ function Phase3Repayment({ mode = 'singleOverdue', rtl = false }) {
           <Phase3Reminder rtl={rtl} days={5} />
           <Phase3KeyRows rtl={rtl} amount="3,868" due="15 Feb 2026" late="79" />
           <div className="phase3-actions">
-            <Button onClick={showRepayBatchMessage}>{rtl ? phase3Urdu.repayNow : 'Repay Now'}</Button>
-            <Button variant="outline">{rtl ? phase3Urdu.howToPay : 'How to Pay'}</Button>
+            <Phase3LoanId rtl={rtl} />
           </div>
         </section>
       )}
@@ -2549,18 +2822,16 @@ function Phase3Repayment({ mode = 'singleOverdue', rtl = false }) {
             <div className="phase3-other-detail">
               <div><span>{rtl ? phase3Urdu.repaymentAmount : 'Repayment Amount'}</span><strong>PKR {item.amount}</strong></div>
               <div><span>{rtl ? phase3Urdu.dueDate : 'Due Date'}</span><strong><Phase3Date>{item.due}</Phase3Date></strong></div>
-              {item.late !== '0' && <div><span>{rtl ? phase3Urdu.lateFee : 'Late Fee'}</span><strong>{item.late}</strong></div>}
             </div>
           </details>
         ))}
       </section>
-      <Phase3BatchToast visible={showBatchToast} />
     </PhoneFrame>
   );
 }
 
-function Phase3OrderDetails({ state = 'upcoming', rtl = false }) {
-  const [showBatchToast, setShowBatchToast] = React.useState(false);
+function Phase3OrderDetails({ state = 'upcoming', rtl = false, initialEarlySettlementRequested = false }) {
+  const [earlySettlementRequested, setEarlySettlementRequested] = React.useState(initialEarlySettlementRequested);
   const overdue = state === 'overdue';
   const cool = state === 'cooling';
   const lateFee = overdue ? '562.62' : '0';
@@ -2572,6 +2843,7 @@ function Phase3OrderDetails({ state = 'upcoming', rtl = false }) {
         <div><span>{rtl ? phase3Urdu.totalPayable : 'Total Payable'}</span><strong>PKR {phase3Order.total}</strong></div>
         <div><span>{rtl ? phase3Urdu.outstanding : 'Outstanding Amount'}</span><strong>PKR {outstanding}</strong></div>
       </section>
+      {overdue && <div className="phase3-detail-loan-id"><Phase3LoanId rtl={rtl} /></div>}
       <section className="phase3-detail-list">
         <div><span>{rtl ? phase3Urdu.markup : 'Markup'}</span><strong>{phase3Order.markup}</strong></div>
         <div><span>{rtl ? phase3Urdu.couponApplied : 'Coupon Applied'}</span><strong>{phase3Order.coupon}</strong></div>
@@ -2593,17 +2865,25 @@ function Phase3OrderDetails({ state = 'upcoming', rtl = false }) {
             <div><span>{rtl ? phase3Urdu.repaymentAmount : 'Repayment Amount'}</span><strong>PKR {item.amount}</strong></div>
             <div><span>{rtl ? phase3Urdu.dueDate : 'Due Date'}</span><strong><Phase3Date>{item.due}</Phase3Date></strong></div>
             {item.repayDate && <div><span>{rtl ? phase3Urdu.repaymentDate : 'Repayment Date'}</span><strong><Phase3Date>{item.repayDate}</Phase3Date></strong></div>}
-            {item.late !== '0' && <div><span>{rtl ? phase3Urdu.lateFee : 'Late Fee'}</span><strong>{item.late}</strong></div>}
+            {item.status !== 'Upcoming' && item.late !== '0' && (
+              <div><span>{rtl ? phase3Urdu.lateFee : 'Late Fee'}</span><strong>{item.late}</strong></div>
+            )}
           </article>
         ))}
       </section>
-      {!cool && (
+      {!cool && !overdue && (
         <div className="phase3-bottom-actions">
-          <Button onClick={() => setShowBatchToast(true)}>{overdue ? (rtl ? phase3Urdu.settleNow : 'Settle Now') : (rtl ? phase3Urdu.earlySettlement : 'Early Settlement')}</Button>
-          <Button variant="outline">{rtl ? phase3Urdu.howToPay : 'How to Pay'}</Button>
+          {earlySettlementRequested ? (
+            <div className="phase3-early-settlement-result">
+              <Phase3LoanId rtl={rtl} />
+              <p>{rtl ? phase3Urdu.earlySettlementRequested : 'This Loan ID is valid for payment today only. If it expires, please submit a new early settlement request.'}</p>
+              <Phase3SettlementCountdown rtl={rtl} />
+            </div>
+          ) : (
+            <Button onClick={() => setEarlySettlementRequested(true)}>{rtl ? phase3Urdu.earlySettlement : 'Early Settlement'}</Button>
+          )}
         </div>
       )}
-      <Phase3BatchToast visible={showBatchToast} />
     </PhoneFrame>
   );
 }
@@ -2673,23 +2953,6 @@ function Phase3Payment({ coupon = 'available', open = null, rtl = false }) {
       <h2 className="phase3-wallet-title">{rtl ? phase3Urdu.selectWallet : 'Please select a wallet for payment.'}</h2>
       <Phase3WalletRow rtl={rtl} wallet="easypaisa" open={open === 'easypaisa'} />
       <Phase3WalletRow rtl={rtl} wallet="jazzcash" open={open === 'jazzcash'} />
-    </PhoneFrame>
-  );
-}
-
-function Phase3PaymentSuccess({ rtl = false }) {
-  return (
-    <PhoneFrame title={rtl ? phase3Urdu.repayment : 'repay'} tab="repay" rtl={rtl} className="phase3-phone phase3-success-phone">
-      <section className="phase3-success">
-        <div className="phase3-success-icon"><WalletCards size={70} /><Check size={30} /></div>
-        <h2>{rtl ? phase3Urdu.success : 'Repayment Successful'}</h2>
-        <strong>PKR 2,225</strong>
-      </section>
-      <section className="phase3-success-detail">
-        <div><span>{rtl ? phase3Urdu.orderNumber : 'Order number'}</span><strong>1243243254</strong></div>
-        <div><span>{rtl ? phase3Urdu.repaymentDate : 'Repayment Date'}</span><strong><Phase3Date>19 Mar 2026</Phase3Date></strong></div>
-        <div><span>{rtl ? phase3Urdu.term : 'Term'}</span><strong>{phase3InstallmentTitle('1st Installment', rtl)}</strong></div>
-      </section>
     </PhoneFrame>
   );
 }
@@ -2908,18 +3171,25 @@ const screenPairs = [
 ];
 
 const phase3RepaymentPairs = [
-  ['Phase 3 Repayment / Loan summary wallet selector', (rtl) => <LoanSummary rtl={rtl} initialWalletFlow="select" />],
   ['Phase 3 Repayment / Loan summary add new wallet', (rtl) => <LoanSummary rtl={rtl} initialWalletFlow="add" />],
-  ['Phase 3 Repayment / Loan summary new wallet selected', (rtl) => <LoanSummary rtl={rtl} initialWalletFlow="added" />],
+  ['Phase 3 Repayment / Loan summary add new wallet one type bound', (rtl) => <LoanSummary rtl={rtl} initialWalletFlow="add" boundWalletType="Easypaisa" />],
+  ['Phase 3 Repayment / Loan summary add new wallet OTP', (rtl) => <LoanSummary rtl={rtl} initialWalletFlow="add" initialWalletStep="verify" />],
+  ['Phase 3 Repayment / Loan summary add new wallet verified', (rtl) => <LoanSummary rtl={rtl} initialWalletFlow="added" />],
+  ['Phase 3 Repayment / Loan summary add new wallet verified no add', (rtl) => <LoanSummary rtl={rtl} initialWalletFlow="added" showWalletAddAction={false} />],
+  ['Phase 3 Repayment / Loan summary no wallet', (rtl) => <LoanSummary rtl={rtl} walletState="none" />],
+  ['Phase 3 Repayment / Loan summary coupon available', (rtl) => <LoanSummary rtl={rtl} couponState="available" />],
+  ['Phase 3 Repayment / Loan summary no coupon available', (rtl) => <LoanSummary rtl={rtl} couponState="none" />],
+  ['Phase 3 Repayment / Loan summary coupon selector', (rtl) => <LoanSummary rtl={rtl} couponState="available" initialCouponDialog />],
   ['Phase 3 Repayment / Single bill overdue expanded', (rtl) => <Phase3Repayment rtl={rtl} mode="singleOverdue" />],
+  ['Phase 3 Repayment / Single bill due today', (rtl) => <Phase3Repayment rtl={rtl} mode="dueToday" />],
   ['Phase 3 Repayment / Single bill before due', (rtl) => <Phase3Repayment rtl={rtl} mode="beforeDue" />],
   ['Phase 3 Repayment / Multiple bills overdue', (rtl) => <Phase3Repayment rtl={rtl} mode="multiOverdue" />],
   ['Phase 3 Repayment / Order details cooling-off', (rtl) => <Phase3OrderDetails rtl={rtl} state="cooling" />],
   ['Phase 3 Repayment / Order details overdue settlement', (rtl) => <Phase3OrderDetails rtl={rtl} state="overdue" />],
   ['Phase 3 Repayment / Order details early settlement', (rtl) => <Phase3OrderDetails rtl={rtl} state="upcoming" />],
+  ['Phase 3 Repayment / Order details early settlement requested', (rtl) => <Phase3OrderDetails rtl={rtl} state="upcoming" initialEarlySettlementRequested />],
   ['Phase 3 Repayment / History paid off', (rtl) => <Phase3History rtl={rtl} />],
   ['Phase 3 Repayment / No data', (rtl) => <Phase3Empty rtl={rtl} />],
-  ['Phase 3 Repayment / Payment success', (rtl) => <Phase3PaymentSuccess rtl={rtl} />],
 ];
 
 const newRequirementNames = new Set([
@@ -2969,6 +3239,129 @@ const newDialogNames = ['Credit Application Limit Dialog', 'Application Exit Ret
 const oldDialogNames = ['Dialogs, Toasts, System Permission'];
 const pageId = (name) => `page-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`;
 
+const navExactTranslations = {
+  'Home Page Copy': '首页文案',
+  'Setting': '设置',
+  'Credit Application Limit Dialog': '信贷申请额度限制弹窗',
+  'Application Exit Retention Dialog': '退出申请挽留弹窗',
+  'Wallet Confirm Dialog': '钱包确认弹窗',
+  'Satisfaction Feedback Dialog': '满意度反馈弹窗',
+  'Dialogs, Toasts, System Permission': '弹窗、提示与系统权限',
+};
+
+const navGroupTranslations = {
+  'Phase 3 Repayment': '第三期还款',
+  'First open': '首次打开',
+  'Home': '首页',
+  'Credit Application': '信贷申请',
+  'Withdrawal': '提现',
+  'Facial Verification': '人脸验证',
+  'Application Status': '申请状态',
+  'Loan': '贷款',
+  'Register': '注册',
+  'Account': '账户',
+  'Setting': '设置',
+  'Common states': '通用状态',
+};
+
+const navItemTranslations = {
+  'Splash': '启动页',
+  'Risk notice': '风险提示',
+  'Permissions': '权限申请',
+  'Privacy Policy': '隐私政策',
+  'Terms and Conditions': '条款与条件',
+  'User Data Policy': '用户数据政策',
+  'Application under review': '申请审核中',
+  'Reapply after 7 days': '7 天后重新申请',
+  'Not eligible': '不符合资格',
+  'Choose amount': '选择金额',
+  '15 days remaining': '剩余 15 天',
+  'Repayment due soon': '还款即将到期',
+  'Repayment overdue': '还款已逾期',
+  'Multiple bills overdue': '多笔账单逾期',
+  'Cooling-off cancellation limit': '冷静期取消限制',
+  'Credit review in progress': '信用审核中',
+  'Basic': '基本信息',
+  'Education options': '教育程度选项',
+  'Marital status options': '婚姻状况选项',
+  'Children options': '子女情况选项',
+  'Pay Period options': '发薪周期选项',
+  'Salary Day calendar': '发薪日日历',
+  'Basic with other loans': '基本信息（含其他贷款）',
+  'Contact': '联系信息',
+  'CNIC': 'CNIC 信息',
+  'CNIC uploaded failure': 'CNIC 上传失败',
+  'CNIC camera': 'CNIC 拍摄',
+  'CNIC camera review': 'CNIC 拍摄确认',
+  'CNIC filled': 'CNIC 已填写',
+  'CNIC filled no sheet': 'CNIC 已填写（无弹层）',
+  'Add method': '添加提现方式',
+  'Guide': '引导页',
+  'Scan': '扫描',
+  'Scan review': '扫描确认',
+  'Scan failed': '扫描失败',
+  'Under review': '审核中',
+  'Rejected': '已拒绝',
+  'Approved': '已通过',
+  'Summary': '贷款摘要',
+  'Summary expired': '贷款摘要已过期',
+  'Funds disbursed': '资金已发放',
+  'Transfer processing': '转账处理中',
+  'Unknown reason failed': '未知原因失败',
+  'Application declined reference': '申请被拒参考页',
+  'Login': '登录',
+  'Login error': '登录错误',
+  'OTP': 'OTP 验证',
+  'whatsapp OTP': 'WhatsApp OTP 验证',
+  'OTP error/loading': 'OTP 错误／加载',
+  'Unlock pattern verification': '解锁图案验证',
+  'Unlock pattern error': '解锁图案错误',
+  'Pattern setup': '解锁图案设置',
+  'Pattern confirm error': '解锁图案确认错误',
+  'Profile not logged in': '个人中心（未登录）',
+  'Profile logged in': '个人中心（已登录）',
+  'Profile verification': '资料验证',
+  'Coupon': '优惠券',
+  'Calculator 3 installments': '计算器（3 期）',
+  'Calculator 6 installments': '计算器（6 期）',
+  'About Us': '关于我们',
+  'FAQ': '常见问题',
+  'Terms': '条款',
+  'Reset Password': '重置密码',
+  'Reset Password OTP': '重置密码 OTP',
+  'Devices Manager': '设备管理',
+  'Account Cancel': '注销账户',
+  'Account Cancel OTP': '注销账户 OTP',
+  'Network error': '网络错误',
+  'Server unavailable': '服务器不可用',
+  'Session expired': '会话已过期',
+  'Empty records': '暂无记录',
+  'Loan summary add new wallet': '贷款摘要／添加新钱包',
+  'Loan summary add new wallet one type bound': '贷款摘要／已绑定一种钱包',
+  'Loan summary add new wallet OTP': '贷款摘要／新钱包 OTP',
+  'Loan summary add new wallet verified': '贷款摘要／新钱包已验证',
+  'Loan summary add new wallet verified no add': '贷款摘要／新钱包已验证（无添加）',
+  'Loan summary no wallet': '贷款摘要／无钱包',
+  'Loan summary coupon available': '贷款摘要／有可用优惠券',
+  'Loan summary no coupon available': '贷款摘要／无可用优惠券',
+  'Loan summary coupon selector': '贷款摘要／优惠券选择',
+  'Single bill overdue expanded': '单笔账单逾期（展开）',
+  'Single bill due today': '单笔账单（今日还款）',
+  'Single bill before due': '单笔账单未到期',
+  'Order details cooling-off': '订单详情／冷静期',
+  'Order details overdue settlement': '订单详情／逾期结清',
+  'Order details early settlement': '订单详情／提前结清',
+  'Order details early settlement requested': '订单详情／已申请提前结清',
+  'History paid off': '历史记录／已结清',
+  'No data': '暂无数据',
+};
+
+const translateNavName = (name) => {
+  if (navExactTranslations[name]) return navExactTranslations[name];
+  const [group, item] = name.split(' / ');
+  return [navGroupTranslations[group] || group, navItemTranslations[item] || item].filter(Boolean).join(' / ');
+};
+
 function PageNav() {
   const newPages = screenPairs.filter(([name]) => newRequirementNames.has(name));
   const oldPages = screenPairs.filter(([name]) => !newRequirementNames.has(name));
@@ -2977,23 +3370,23 @@ function PageNav() {
       <h1>页面导航</h1>
       <p>新需求单独列在前面；旧页面已经交给技术开发，放在下方备查。</p>
       <section>
-        <h2>Phase 3 Repayment</h2>
+        <h2>第三期还款</h2>
         <nav className="nav-links phase3-nav">
-          {phase3RepaymentPairs.map(([name]) => <a key={name} href={`#${pageId(name)}`}>{name.replace('Phase 3 Repayment / ', '')}</a>)}
+          {phase3RepaymentPairs.map(([name]) => <a key={name} href={`#${pageId(name)}`}>{translateNavName(name).replace('第三期还款 / ', '')}</a>)}
         </nav>
       </section>
       <section>
-        <h2>New Requirements</h2>
+        <h2>新需求页面</h2>
         <nav className="nav-links">
-          {newPages.map(([name]) => <a key={name} href={`#${pageId(name)}`}>{name}</a>)}
-          {newDialogNames.map((name) => <a key={name} href={`#${pageId(name)}`}>{name}</a>)}
+          {newPages.map(([name]) => <a key={name} href={`#${pageId(name)}`}>{translateNavName(name)}</a>)}
+          {newDialogNames.map((name) => <a key={name} href={`#${pageId(name)}`}>{translateNavName(name)}</a>)}
         </nav>
       </section>
       <section>
-        <h2>Old Delivered Pages</h2>
+        <h2>已交付旧页面</h2>
         <nav className="nav-links old">
-          {oldPages.map(([name]) => <a key={name} href={`#${pageId(name)}`}>{name}</a>)}
-          {oldDialogNames.map((name) => <a key={name} href={`#${pageId(name)}`}>{name}</a>)}
+          {oldPages.map(([name]) => <a key={name} href={`#${pageId(name)}`}>{translateNavName(name)}</a>)}
+          {oldDialogNames.map((name) => <a key={name} href={`#${pageId(name)}`}>{translateNavName(name)}</a>)}
         </nav>
       </section>
     </aside>
