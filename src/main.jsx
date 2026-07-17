@@ -1736,9 +1736,9 @@ function FaceOutline() {
   );
 }
 
-function FacialGuide({ rtl = false }) {
+function FacialGuide({ rtl = false, onBack, onStart }) {
   return (
-    <PhoneFrame title={rtl ? 'چہرے کی تصدیق' : 'Facial Verification'} noNav rtl={rtl} className="facial-phone">
+    <PhoneFrame title={rtl ? 'چہرے کی تصدیق' : 'Facial Verification'} noNav rtl={rtl} className="facial-phone" onBack={onBack}>
       <div className="facial-stage">
         <div className="facial-instruction">
           <span><ScanFaceIcon /></span>
@@ -1780,9 +1780,9 @@ function FacialGuide({ rtl = false }) {
               <div className="avoid-label">Wear mask</div>
             </div>
           </div>
-          <Button icon={Camera}>{rtl ? 'چہرے کی تصدیق' : 'Facial Verification'}</Button>
+          <Button icon={Camera} type="button" onClick={onStart}>{rtl ? 'چہرے کی تصدیق' : 'Facial Verification'}</Button>
         </div>
-        <Button wide={false}>{rtl ? 'تصدیق شروع کریں' : 'Start Verification'}</Button>
+        <Button wide={false} type="button" onClick={onStart}>{rtl ? 'تصدیق شروع کریں' : 'Start Verification'}</Button>
       </div>
     </PhoneFrame>
   );
@@ -1907,9 +1907,9 @@ function MiniFace({ variant }) {
   );
 }
 
-function FacialScan({ rtl = false, recognitionFailed = false, photoReview = false }) {
+function FacialScan({ rtl = false, recognitionFailed = false, photoReview = false, onBack }) {
   return (
-    <PhoneFrame title={rtl ? 'چہرے کی تصدیق' : 'Facial Verification'} noNav rtl={rtl} className={`facial-phone scan ${recognitionFailed ? 'scan-failed' : ''} ${photoReview ? 'scan-review' : ''}`}>
+    <PhoneFrame title={rtl ? 'چہرے کی تصدیق' : 'Facial Verification'} noNav rtl={rtl} className={`facial-phone scan ${recognitionFailed ? 'scan-failed' : ''} ${photoReview ? 'scan-review' : ''}`} onBack={onBack}>
       <div className="facial-stage">
         <p className="facial-instruction">
           {photoReview
@@ -2107,7 +2107,83 @@ function ApplicationDeclinedReferencePage({ rtl = false }) {
   );
 }
 
-function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed', walletState = 'available', couponState = 'applied', initialCouponDialog = false, boundWalletType = null, initialWalletStep = 'form', showWalletAddAction = true }) {
+function LoanFundsOtp({ rtl = false, target = '****67347', onClose, onVerified }) {
+  const [code, setCode] = React.useState('');
+  const [seconds, setSeconds] = React.useState(45);
+  const titleId = React.useId();
+
+  React.useEffect(() => {
+    if (seconds <= 0) return undefined;
+    const timer = window.setInterval(() => setSeconds((value) => Math.max(0, value - 1)), 1000);
+    return () => window.clearInterval(timer);
+  }, [seconds]);
+
+  const complete = code.length === 6;
+  return (
+    <div className="loan-wallet-overlay funds-confirm-overlay" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={onClose}>
+      <section className="loan-wallet-sheet funds-confirm-sheet" dir={rtl ? 'rtl' : 'ltr'} onClick={(event) => event.stopPropagation()}>
+        <div className="sheet-grabber" />
+        <header className="loan-wallet-head">
+          <div>
+            <h3 id={titleId}>{rtl ? 'قرض کی تصدیق کریں' : 'Verify your loan request'}</h3>
+            <p>{rtl ? 'ہم نے آپ کے رجسٹرڈ موبائل نمبر پر 6 ہندسوں کا کوڈ بھیجا ہے۔' : 'Enter the 6-digit code sent to your registered mobile number.'}</p>
+          </div>
+          <button type="button" className="wallet-sheet-close" onClick={onClose} aria-label={rtl ? 'بند کریں' : 'Close'}><X size={20} /></button>
+        </header>
+
+        <div className="loan-funds-otp">
+        <div className="funds-otp-loan-card">
+          <div className="funds-otp-card-details">
+            <div className="funds-otp-repayment">
+              <em>{rtl ? 'کل واپسی کی رقم' : 'Repayment Amount'}</em>
+              <strong>PKR 7,150</strong>
+            </div>
+            <div className="funds-otp-plan">
+              <em>{rtl ? 'واپسی کا منصوبہ' : 'Repayment Plan'}</em>
+              <strong>{rtl ? '2 اقساط' : '2 installments'}</strong>
+              <small>{rtl ? '30 دن' : '30 days'}</small>
+            </div>
+          </div>
+        </div>
+
+        <div className="funds-otp-target">
+          <Smartphone size={20} />
+          <div><span>{rtl ? 'تصدیقی کوڈ بھیجا گیا' : 'Verification code sent to'}</span><strong dir="ltr">{target}</strong></div>
+        </div>
+
+        <label className="funds-otp-inputs" dir="ltr">
+          <span className="sr-only">{rtl ? '6 ہندسوں کا تصدیقی کوڈ' : '6-digit verification code'}</span>
+          <input
+            value={code}
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={6}
+            onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
+          />
+          {Array.from({ length: 6 }, (_, index) => (
+            <span className={`${code[index] ? 'filled' : ''} ${code.length === index ? 'active' : ''}`} aria-hidden="true" key={index}>{code[index] || ''}</span>
+          ))}
+        </label>
+
+        <div className="funds-otp-resend">
+          <span>{rtl ? 'کوڈ موصول نہیں ہوا؟' : "Didn't receive the code?"}</span>
+          <button type="button" disabled={seconds > 0} onClick={() => setSeconds(45)}>
+            {seconds > 0 ? (rtl ? `${seconds} سیکنڈ میں دوبارہ بھیجیں` : `Resend in ${seconds}s`) : (rtl ? 'کوڈ دوبارہ بھیجیں' : 'Resend code')}
+          </button>
+        </div>
+
+        <Button type="button" disabled={!complete} onClick={() => complete && onVerified?.()}>
+          {rtl ? 'کوڈ کی تصدیق کریں' : 'Verify Code'}
+        </Button>
+        <p className="funds-otp-security"><ShieldCheck size={15} />{rtl ? 'کسی کے ساتھ اپنا OTP شیئر نہ کریں۔' : 'Never share this OTP with anyone, including Inyor support.'}</p>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed', walletState = 'available', couponState = 'applied', initialCouponDialog = false, boundWalletType = null, initialWalletStep = 'form', showWalletAddAction = true, initialAcceptStep = 'summary' }) {
+  const [acceptStep, setAcceptStep] = React.useState(initialAcceptStep);
   const [showLateFeeInfo, setShowLateFeeInfo] = React.useState(false);
   const [showWalletUnavailable, setShowWalletUnavailable] = React.useState(false);
   const [showCouponSheet, setShowCouponSheet] = React.useState(initialCouponDialog);
@@ -2196,6 +2272,15 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
     setEditingWalletId(null);
     setWalletFlow('select');
   };
+
+  if (acceptStep === 'face-guide') {
+    return <FacialGuide rtl={rtl} onBack={() => setAcceptStep('otp')} onStart={() => setAcceptStep('face-scan')} />;
+  }
+
+  if (acceptStep === 'face-scan') {
+    return <FacialScan rtl={rtl} onBack={() => setAcceptStep('face-guide')} />;
+  }
+
   return (
     <PhoneFrame title={rtl ? 'قرض کا خلاصہ' : 'Loan Summary'} rtl={rtl} noNav className="loan-summary-phone">
       <section className="matched-plan-card">
@@ -2322,7 +2407,9 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
             }
             if (walletUnavailable) {
               setShowWalletUnavailable(true);
+              return;
             }
+            setAcceptStep('otp');
           }}
         >
           {rtl ? 'قبول کریں اور رقم حاصل کریں' : 'Accept & Get Funds'}
@@ -2379,6 +2466,14 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
       )}
       {showCouponSheet && (
         <CouponSelectDialog rtl={rtl} applied={couponState === 'applied'} onClose={() => setShowCouponSheet(false)} />
+      )}
+      {acceptStep === 'otp' && (
+        <LoanFundsOtp
+          rtl={rtl}
+          target={selectedWallet?.number || '****67347'}
+          onClose={() => setAcceptStep('summary')}
+          onVerified={() => setAcceptStep('face-guide')}
+        />
       )}
     </PhoneFrame>
   );
@@ -3190,6 +3285,7 @@ const screenPairs = [
   ['Application Status / Rejected', (rtl) => <ApplicationStatus rtl={rtl} state="rejected" />],
   ['Application Status / Approved', (rtl) => <ApplicationStatus rtl={rtl} state="approved" />],
   ['Loan / Summary', (rtl) => <LoanSummary rtl={rtl} />],
+  ['Loan / Funds OTP Verification', (rtl) => <LoanSummary rtl={rtl} initialAcceptStep="otp" />],
   ['Loan / Summary expired', (rtl) => <LoanSummary rtl={rtl} expired />],
   ['Loan / Funds disbursed', (rtl) => <FundsDisbursed rtl={rtl} />],
   ['Application Status / Transfer processing', (rtl) => <TransferProcessingPage rtl={rtl} />],
@@ -3283,6 +3379,7 @@ const newRequirementNames = new Set([
   'Application Status / Rejected',
   'Application Status / Approved',
   'Loan / Summary',
+  'Loan / Funds OTP Verification',
   'Loan / Summary expired',
   'Loan / Funds disbursed',
   'Application Status / Transfer processing',
@@ -3360,6 +3457,7 @@ const navItemTranslations = {
   'Rejected': '已拒绝',
   'Approved': '已通过',
   'Summary': '贷款摘要',
+  'Funds OTP Verification': '放款 OTP 验证',
   'Summary expired': '贷款摘要已过期',
   'Funds disbursed': '资金已发放',
   'Transfer processing': '转账处理中',
@@ -3419,8 +3517,15 @@ const translateNavName = (name) => {
   return [navGroupTranslations[group] || group, navItemTranslations[item] || item].filter(Boolean).join(' / ');
 };
 
+const loanVerificationNav = [
+  ['Loan / Funds OTP Verification', '放款验证码验证'],
+  ['Facial Verification / Guide', '人脸验证引导'],
+  ['Facial Verification / Scan', '人脸识别扫描'],
+];
+const loanVerificationNames = new Set(loanVerificationNav.map(([name]) => name));
+
 function PageNav() {
-  const newPages = screenPairs.filter(([name]) => newRequirementNames.has(name));
+  const newPages = screenPairs.filter(([name]) => newRequirementNames.has(name) && !loanVerificationNames.has(name));
   const oldPages = screenPairs.filter(([name]) => !newRequirementNames.has(name));
   return (
     <aside className="spec-panel nav-panel">
@@ -3430,6 +3535,12 @@ function PageNav() {
         <h2>第三期还款</h2>
         <nav className="nav-links phase3-nav">
           {phase3RepaymentPairs.map(([name]) => <a key={name} href={`#${pageId(name)}`}>{translateNavName(name).replace('第三期还款 / ', '')}</a>)}
+        </nav>
+      </section>
+      <section>
+        <h2>借款验证流程</h2>
+        <nav className="nav-links verification-nav">
+          {loanVerificationNav.map(([name, label]) => <a key={name} href={`#${pageId(name)}`}>{label}</a>)}
         </nav>
       </section>
       <section>
