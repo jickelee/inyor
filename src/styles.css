@@ -8118,6 +8118,353 @@ button { cursor: pointer; }
   left: 11px;
 }
 
+/* Loan acceptance OTP: confirmation step before facial verification. */
+.loan-funds-otp-phone .screen {
+  padding: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 85% 2%, rgba(24, 183, 143, .13), transparent 28%),
+    linear-gradient(180deg, #f8fcfa 0%, #f3f8f6 100%);
+}
+
+.loan-funds-otp {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 28px 22px 20px;
+}
+
+.funds-confirm-sheet {
+  max-height: min(74%, 580px);
+  gap: 18px;
+  padding: 10px 22px 24px;
+  border-radius: 30px 30px 0 0;
+}
+
+.funds-confirm-sheet .loan-funds-otp {
+  height: auto;
+  display: grid;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+}
+
+.funds-confirm-sheet .funds-otp-target {
+  margin: 19px 2px 14px;
+}
+
+.funds-confirm-sheet .funds-otp-resend {
+  margin: 12px 0 14px;
+}
+
+.funds-confirm-sheet .funds-otp-loan-card {
+  margin: 0;
+}
+
+.funds-confirm-sheet .loan-wallet-head {
+  grid-template-columns: minmax(0, 1fr) 42px;
+  align-items: center;
+  gap: 16px;
+}
+
+.funds-confirm-sheet .loan-wallet-head > div {
+  grid-column: 1;
+}
+
+.funds-confirm-sheet .loan-wallet-head h3 {
+  font-size: 21px;
+  letter-spacing: -.02em;
+}
+
+.funds-confirm-sheet .loan-wallet-head p {
+  margin-top: 5px;
+  color: #708078;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.funds-confirm-sheet .wallet-sheet-close {
+  grid-column: 2;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: #f1f5f3;
+}
+
+.funds-otp-icon {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 16px;
+  border-radius: 22px;
+  color: #fff;
+  background: linear-gradient(145deg, #087c62, #0eb58b);
+  box-shadow: 0 16px 30px rgba(8, 124, 98, .22);
+}
+
+.funds-otp-icon svg {
+  width: 30px;
+  height: 30px;
+}
+
+.funds-otp-heading {
+  display: grid;
+  gap: 7px;
+}
+
+.funds-otp-kicker {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  color: #087c62;
+  background: #e2f6ef;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.funds-otp-heading h2 {
+  margin: 0;
+  color: #101827;
+  font-size: 25px;
+  font-weight: 900;
+  line-height: 1.14;
+}
+
+.funds-otp-heading p {
+  margin: 0;
+  color: #687581;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.funds-otp-target {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: #087c62;
+  background: transparent;
+}
+
+.funds-otp-target div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.funds-otp-target span {
+  color: #687581;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.funds-otp-target strong {
+  color: #101827;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: .04em;
+}
+
+.funds-otp-inputs {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.funds-otp-inputs input {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  opacity: .01;
+  caret-color: #087c62;
+}
+
+.funds-otp-inputs > span:not(.sr-only) {
+  min-width: 0;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #d6e2dd;
+  border-radius: 12px;
+  color: #101827;
+  background: #fff;
+  box-shadow: none;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.funds-otp-inputs:focus-within > span.active,
+.funds-otp-inputs > span.filled {
+  outline: 3px solid rgba(14, 181, 139, .15);
+  border-color: #0aa77d;
+}
+
+.sr-only {
+  width: 1px;
+  height: 1px;
+  position: absolute;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.funds-otp-resend {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin: 13px 0 18px;
+  color: #7a858e;
+  font-size: 11px;
+}
+
+.funds-otp-resend button {
+  border: 0;
+  padding: 0;
+  color: #087c62;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.funds-otp-resend button:disabled {
+  color: #8e9994;
+  cursor: default;
+}
+
+.funds-otp-loan-card {
+  display: grid;
+  gap: 0;
+  margin-bottom: 18px;
+  padding: 16px 17px;
+  border: 0;
+  border-radius: 16px;
+  background: #f4f8f6;
+}
+
+.funds-otp-card-details {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr);
+  gap: 0;
+  padding: 0;
+  border: 0;
+}
+
+.funds-otp-card-details > div {
+  min-width: 0;
+}
+
+.funds-otp-plan {
+  display: grid;
+  align-content: end;
+  gap: 2px;
+  padding-left: 17px;
+  border-left: 1px solid #dbe5e1;
+}
+
+.funds-otp-repayment strong {
+  color: #101827;
+  font-size: 25px;
+  font-weight: 950;
+}
+
+.funds-otp-repayment {
+  display: grid;
+  gap: 2px;
+}
+
+.funds-otp-repayment em,
+.funds-otp-plan em {
+  color: #718079;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 850;
+  letter-spacing: .02em;
+}
+
+.funds-otp-plan strong {
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.funds-otp-plan small {
+  color: #52615c;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.phone[dir="rtl"] .funds-otp-plan {
+  padding-right: 14px;
+  padding-left: 0;
+  border-right: 1px solid rgba(8, 124, 98, .13);
+  border-left: 0;
+}
+
+.loan-funds-otp .btn {
+  min-height: 52px;
+  border-radius: 12px;
+}
+
+.loan-funds-otp .btn:disabled {
+  color: #fff;
+  background: #a9b6b1;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.funds-otp-security {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6px;
+  margin: 12px 4px 0;
+  color: #7a858e;
+  font-size: 10px;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.funds-otp-security svg {
+  flex: 0 0 auto;
+  color: #087c62;
+}
+
+.phone[dir="rtl"] .funds-otp-heading,
+.phone[dir="rtl"] .funds-otp-target,
+.phone[dir="rtl"] .funds-otp-loan-card {
+  text-align: right;
+}
+
+.phone[dir="rtl"] .funds-otp-target {
+  grid-template-columns: minmax(0, 1fr) 26px;
+}
+
+.phone[dir="rtl"] .funds-otp-target > svg {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.phone[dir="rtl"] .funds-otp-target > div {
+  grid-column: 1;
+  grid-row: 1;
+}
+
 /* Facial Verification / Scan: match the gray camera-screen reference. */
 .youth-theme .facial-phone.scan .screen,
 .facial-phone.scan .screen {
@@ -9240,6 +9587,17 @@ button { cursor: pointer; }
   border-color: rgba(255,216,77,.44);
   color: #06231e;
   background: #ffd84d;
+}
+
+.verification-nav a {
+  border-color: rgba(255,216,77,.44);
+  color: #06231e;
+  background: #ffd84d;
+}
+
+.verification-nav a:hover {
+  color: #06231e;
+  background: #ffe478;
 }
 
 .phase3-section-pair {
