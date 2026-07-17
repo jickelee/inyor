@@ -2272,7 +2272,6 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
     setEditingWalletId(null);
     setWalletFlow('select');
   };
-
   if (acceptStep === 'face-guide') {
     return <FacialGuide rtl={rtl} onBack={() => setAcceptStep('otp')} onStart={() => setAcceptStep('face-scan')} />;
   }
