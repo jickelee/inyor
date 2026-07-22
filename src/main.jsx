@@ -2478,12 +2478,12 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
   );
 }
 
-function CouponSelectDialog({ rtl = false, applied = false, onClose }) {
+function CouponSelectDialog({ rtl = false, applied = false, fullRepaymentNotice = false, onClose }) {
   const [selectedCouponId, setSelectedCouponId] = React.useState(applied ? 'new-user' : null);
   const coupons = [
-    { id: 'new-user', title: rtl ? 'نئے صارف کا کوپن' : 'New user coupon', amount: '+200', desc: rtl ? 'اس قرض کے لیے دستیاب' : 'Available for this loan' },
-    { id: 'repay', title: rtl ? 'وقت پر ادائیگی کا انعام' : 'On-time reward', amount: '+100', desc: rtl ? 'اگلے قرض پر استعمال کریں' : 'Use on the next loan' },
-    { id: 'service', title: rtl ? 'سروس فیس رعایت' : 'Service fee discount', amount: '+50', desc: rtl ? 'محدود وقت کے لیے' : 'Limited time offer' },
+    { id: 'new-user', title: rtl ? 'نئے صارف کا کوپن' : 'New user coupon', amount: '-200', expiry: '31 Mar 2026', desc: rtl ? 'اس قرض کے لیے دستیاب' : 'Available for this loan' },
+    { id: 'repay', title: rtl ? 'وقت پر ادائیگی کا انعام' : 'On-time reward', amount: '-100', expiry: '15 Apr 2026', desc: rtl ? 'اگلے قرض پر استعمال کریں' : 'Use on the next loan' },
+    { id: 'service', title: rtl ? 'سروس فیس رعایت' : 'Service fee discount', amount: '-50', expiry: '30 Apr 2026', desc: rtl ? 'محدود وقت کے لیے' : 'Limited time offer' },
   ];
   return (
     <div className="loan-info-overlay" role="dialog" aria-modal="true" aria-labelledby="coupon-select-title" onClick={onClose}>
@@ -2510,6 +2510,7 @@ function CouponSelectDialog({ rtl = false, applied = false, onClose }) {
               <span><Ticket size={18} /></span>
               <div>
                 <strong>{coupon.title}</strong>
+                <small className="coupon-expiry">{rtl ? 'میعاد ختم' : 'Expires'} <Phase3Date>{coupon.expiry}</Phase3Date></small>
                 <small>{coupon.desc}</small>
               </div>
               <em>{coupon.amount}</em>
@@ -2517,6 +2518,12 @@ function CouponSelectDialog({ rtl = false, applied = false, onClose }) {
             </button>
           );})}
         </div>
+        {fullRepaymentNotice && (
+          <div className="coupon-full-repayment-notice">
+            <Info size={17} />
+            <p>{rtl ? 'کوپن استعمال کرنے کے بعد تمام جاری شدہ اور غیر ادا شدہ بلوں کی پوری رقم ادا کرنا ضروری ہے۔' : 'After using a coupon, you must repay the full billed and unpaid amount for all bills.'}</p>
+          </div>
+        )}
         <Button
           type="button"
           className="coupon-select-confirm"
@@ -2691,7 +2698,7 @@ const phase3Urdu = {
   paid: 'ادا شدہ',
   daysOverdue: (days) => `${days} دن کی تاخیر`,
   markup: 'مارک اپ',
-  couponApplied: 'کوپن لاگو',
+  couponApplied: 'چھوٹ',
   terms: 'مدت',
   service: 'سروس فیس',
   agreement: 'قرض معاہدہ دیکھیں',
@@ -2749,7 +2756,7 @@ function Phase3Tabs({ active = 'progress', rtl = false }) {
   );
 }
 
-function Phase3AmountSummary({ outstanding = phase3Order.outstanding, showDate = true, rtl = false }) {
+function Phase3AmountSummary({ outstanding = phase3Order.outstanding, showDate = true, coupon = 'none', onCouponClick, rtl = false }) {
   return (
     <section className="phase3-summary">
       <h2>{rtl ? phase3Urdu.repayment : 'Repayment'}</h2>
@@ -2763,6 +2770,15 @@ function Phase3AmountSummary({ outstanding = phase3Order.outstanding, showDate =
           <strong>PKR {outstanding}</strong>
         </div>
       </div>
+      {coupon !== 'none' && (
+        <button type="button" className={`phase3-summary-coupon ${coupon}`} onClick={onCouponClick}>
+          <span>{rtl ? (coupon === 'applied' ? 'کوپن لاگو' : phase3Urdu.coupon) : (coupon === 'applied' ? 'Coupon Applied' : 'Coupon')}</span>
+          <strong dir={coupon === 'applied' ? 'ltr' : undefined}>
+            {coupon === 'applied' ? '-300' : (rtl ? '۳ دستیاب' : '3 Available')}
+            {rtl ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+          </strong>
+        </button>
+      )}
       <div className="phase3-summary-foot">
         {showDate && <span>{rtl ? phase3Urdu.disbursement : 'Disbursement Date'}<br /><strong><Phase3Date>{phase3Order.date}</Phase3Date></strong></span>}
         <button>{rtl ? phase3Urdu.details : 'Order details'} {rtl ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}</button>
@@ -2865,7 +2881,7 @@ function Phase3PaymentGuideDialog({ rtl = false, initialCopied = false, onClose 
   );
 }
 
-function Phase3LoanId({ rtl = false }) {
+function Phase3LoanId({ rtl = false, showValidityNotice = false, couponValidityNotice = false }) {
   const [copied, setCopied] = React.useState(false);
   const [showGuide, setShowGuide] = React.useState(false);
 
@@ -2888,6 +2904,13 @@ function Phase3LoanId({ rtl = false }) {
           <span>{rtl ? (copied ? phase3Urdu.copied : phase3Urdu.copy) : (copied ? 'Copied' : 'Copy')}</span>
         </button>
       </div>
+      {showValidityNotice && (
+        <p className="phase3-loan-id-validity">
+          {couponValidityNotice
+            ? (rtl ? <>یہ لون آئی ڈی <span dir="ltr">31 Mar 2026, 23:59</span> بجے تک کارآمد ہے۔ براہ کرم اس وقت سے پہلے ادائیگی مکمل کریں۔</> : <strong>This Loan ID is valid until 31 Mar 2026, 23:59. Please complete repayment before this time.</strong>)
+            : (rtl ? 'یہ لون آئی ڈی آج 23:50 بجے تک کارآمد ہے۔ اگر اس کی میعاد ختم ہو جائے تو براہ کرم قبل از وقت ادائیگی کی دوبارہ درخواست کریں۔' : <strong>This Loan ID is valid until 23:50 today. If it expires, please request early settlement again.</strong>)}
+        </p>
+      )}
       {showGuide && <Phase3PaymentGuideDialog rtl={rtl} initialCopied onClose={() => setShowGuide(false)} />}
     </>
   );
@@ -2923,7 +2946,8 @@ function Phase3EarlySettlementSummary({ rtl = false }) {
   );
 }
 
-function Phase3Repayment({ mode = 'singleOverdue', rtl = false }) {
+function Phase3Repayment({ mode = 'singleOverdue', coupon = 'none', rtl = false }) {
+  const [showCouponSheet, setShowCouponSheet] = React.useState(false);
   const isBeforeDue = mode === 'beforeDue';
   const isDueToday = mode === 'dueToday';
   const isMulti = mode === 'multiOverdue';
@@ -2931,26 +2955,23 @@ function Phase3Repayment({ mode = 'singleOverdue', rtl = false }) {
   return (
     <PhoneFrame tab="repay" rtl={rtl} className="phase3-phone phase3-repay-phone">
       <Phase3Tabs rtl={rtl} />
-      <Phase3AmountSummary rtl={rtl} outstanding={isBeforeDue ? phase3Order.fullOutstanding : phase3Order.outstanding} showDate={mode !== 'compact'} />
+      <Phase3AmountSummary rtl={rtl} outstanding={isBeforeDue ? phase3Order.fullOutstanding : phase3Order.outstanding} showDate={mode !== 'compact'} coupon={isMulti ? coupon : 'none'} onCouponClick={() => setShowCouponSheet(true)} />
+      {!isBeforeDue && (
+        <section className="phase3-standalone-loan-id">
+          <Phase3LoanId rtl={rtl} showValidityNotice={coupon === 'applied'} couponValidityNotice={coupon === 'applied'} />
+        </section>
+      )}
       <section className="phase3-section">
         <h2>{rtl ? phase3Urdu.installmentRepayment : 'Installment Repayment'}</h2>
         <h3>{phase3InstallmentTitle(isBeforeDue ? '1st Installment' : '2nd Installment', rtl)} / 4 {rtl ? phase3Urdu.total : 'Total'}</h3>
         <Phase3Reminder rtl={rtl} tone={isDueToday ? 'today' : isBeforeDue ? 'due' : 'overdue'} days={currentDays} />
         <Phase3KeyRows rtl={rtl} paidUp={isMulti ? '1,000' : '0'} late={isBeforeDue || isDueToday ? '0' : '351.6'} />
-        {!isBeforeDue && (
-          <div className="phase3-actions">
-            <Phase3LoanId rtl={rtl} />
-          </div>
-        )}
       </section>
       {isMulti && (
         <section className="phase3-section compact-due">
           <h3>{phase3InstallmentTitle('3rd Installment', rtl)} / 4 {rtl ? phase3Urdu.total : 'Total'}</h3>
           <Phase3Reminder rtl={rtl} days={5} />
           <Phase3KeyRows rtl={rtl} amount="3,868" due="15 Feb 2026" late="79" />
-          <div className="phase3-actions">
-            <Phase3LoanId rtl={rtl} />
-          </div>
         </section>
       )}
       <section className="phase3-section other">
@@ -2969,6 +2990,7 @@ function Phase3Repayment({ mode = 'singleOverdue', rtl = false }) {
           </details>
         ))}
       </section>
+      {showCouponSheet && <CouponSelectDialog rtl={rtl} applied={coupon === 'applied'} fullRepaymentNotice onClose={() => setShowCouponSheet(false)} />}
     </PhoneFrame>
   );
 }
@@ -2989,7 +3011,7 @@ function Phase3OrderDetails({ state = 'upcoming', rtl = false, initialEarlySettl
       {overdue && <div className="phase3-detail-loan-id"><Phase3LoanId rtl={rtl} /></div>}
       <section className="phase3-detail-list">
         <div><span>{rtl ? phase3Urdu.markup : 'Markup'}</span><strong>{phase3Order.markup}</strong></div>
-        <div><span>{rtl ? phase3Urdu.couponApplied : 'Coupon Applied'}</span><strong>{phase3Order.coupon}</strong></div>
+        <div><span>{rtl ? phase3Urdu.couponApplied : 'Discount'}</span><strong dir="ltr">-{phase3Order.coupon}</strong></div>
         <div><span>{rtl ? phase3Urdu.terms : 'Terms'}</span><strong>{rtl ? '4 اقساط · 60 دن' : phase3Order.terms}</strong></div>
         <div><span>{rtl ? phase3Urdu.disbursement : 'Disbursement Date'}</span><strong><Phase3Date>{phase3Order.date}</Phase3Date></strong></div>
         <div><span>{rtl ? phase3Urdu.service : 'Service Fee'}</span><strong>{phase3Order.service}</strong></div>
@@ -3019,14 +3041,9 @@ function Phase3OrderDetails({ state = 'upcoming', rtl = false, initialEarlySettl
           {earlySettlementRequested ? (
             <div className="phase3-early-settlement-result">
               <Phase3EarlySettlementSummary rtl={rtl} />
-              <Phase3LoanId rtl={rtl} />
-              <p>
-                {rtl ? (
-                  <>یہ لون آئی ڈی آج <strong dir="ltr">23:50</strong> بجے تک مؤثر ہے۔ میعاد ختم ہونے کے بعد براہ کرم قبل از وقت ادائیگی کے لیے دوبارہ درخواست دیں۔</>
-                ) : (
-                  <>This Loan ID is valid until <strong>23:50 today</strong>. If it expires, please request early settlement again.</>
-                )}
-              </p>
+              <section className="phase3-standalone-loan-id phase3-early-settlement-loan-id">
+                <Phase3LoanId rtl={rtl} showValidityNotice />
+              </section>
             </div>
           ) : (
             <Button onClick={() => setEarlySettlementRequested(true)}>{rtl ? phase3Urdu.earlySettlement : 'Early Settlement'}</Button>
@@ -3335,6 +3352,8 @@ const phase3RepaymentPairs = [
   ['Phase 3 Repayment / Single bill due today', (rtl) => <Phase3Repayment rtl={rtl} mode="dueToday" />],
   ['Phase 3 Repayment / Single bill before due', (rtl) => <Phase3Repayment rtl={rtl} mode="beforeDue" />],
   ['Phase 3 Repayment / Multiple bills overdue', (rtl) => <Phase3Repayment rtl={rtl} mode="multiOverdue" />],
+  ['Phase 3 Repayment / Multiple bills overdue coupon available', (rtl) => <Phase3Repayment rtl={rtl} mode="multiOverdue" coupon="available" />],
+  ['Phase 3 Repayment / Multiple bills overdue coupon applied', (rtl) => <Phase3Repayment rtl={rtl} mode="multiOverdue" coupon="applied" />],
   ['Phase 3 Repayment / Order details cooling-off', (rtl) => <Phase3OrderDetails rtl={rtl} state="cooling" />],
   ['Phase 3 Repayment / Order details overdue settlement', (rtl) => <Phase3OrderDetails rtl={rtl} state="overdue" />],
   ['Phase 3 Repayment / Order details early settlement', (rtl) => <Phase3OrderDetails rtl={rtl} state="upcoming" />],
@@ -3502,6 +3521,8 @@ const navItemTranslations = {
   'Single bill overdue expanded': '单笔账单逾期（展开）',
   'Single bill due today': '单笔账单（今日还款）',
   'Single bill before due': '单笔账单未到期',
+  'Multiple bills overdue coupon available': '多笔账单逾期／有可用优惠券',
+  'Multiple bills overdue coupon applied': '多笔账单逾期／已使用优惠券',
   'Order details cooling-off': '订单详情／冷静期',
   'Order details overdue settlement': '订单详情／逾期结清',
   'Order details early settlement': '订单详情／提前结清',
