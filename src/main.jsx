@@ -524,7 +524,6 @@ function HomePage({ rtl = false, state = 'ready' }) {
     },
     review: {
       title: rtl ? 'آپ کی درخواست زیر جائزہ ہے' : 'Your application is under review',
-      cta: rtl ? 'تفصیلات دیکھیں' : 'View Details',
     },
     rejectedRetry: {
       title: rtl ? 'آپ کی درخواست ابھی ہماری شرائط پر پوری نہیں اترتی۔ آپ 29 May 2026 کو دوبارہ درخواست دے سکتے ہیں۔' : 'We’re sorry, your application does not currently meet our loan requirements. You may reapply on 29 May 2026.',
@@ -590,7 +589,6 @@ function HomePage({ rtl = false, state = 'ready' }) {
             <div><span>{rtl ? 'حالت' : 'Status'}</span><strong>{rtl ? 'زیر جائزہ' : 'Reviewing'}</strong></div>
           </div>
           <p>{rtl ? 'ہم آپ کی درخواست کا جائزہ لے رہے ہیں۔ براہ کرم اپنا فون دستیاب رکھیں۔' : 'We are reviewing your application. Please keep your phone available.'}</p>
-          <Button>{copy.cta}</Button>
         </section>
       )}
       {state === 'creditReview' && (
