@@ -2660,7 +2660,7 @@ const phase3Order = {
 
 const phase3Installments = [
   { title: '1st Installment', amount: '3,728', due: '16 Jan 2026', repayDate: '20 Jan 2026', late: '211.02', status: 'Paid' },
-  { title: '2nd Installment', amount: '3,868', due: '31 Jan 2026', late: '1,251.6', status: '20 Days Overdue' },
+  { title: '2nd Installment', amount: '3,868', due: '31 Jan 2026', late: '1,251.6', status: 'Due Today' },
   { title: '3rd Installment', amount: '3,516', due: '15 Feb 2026', late: '351.6', status: '5 Days Overdue' },
   { title: '4th Installment', amount: '3,516', due: '2 Mar 2026', late: '0', status: 'Upcoming' },
 ];
