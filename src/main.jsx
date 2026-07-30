@@ -406,7 +406,7 @@ function Login({ rtl = false, error = false }) {
         <h1>{rtl ? u.welcome : 'Welcome to Inyor'}</h1>
         <p>{rtl ? 'موبائل نمبر سے جاری رکھیں' : 'Continue with your mobile wallet number'}</p>
       </div>
-      <Field rtl={rtl} label={rtl ? u.mobile : 'Mobile number'} value="03" hint="03xxxxxxxxx" icon={Smartphone} error={error ? (rtl ? 'درست پاکستانی موبائل نمبر درج کریں۔' : 'Enter a valid Pakistani mobile number.') : ''} />
+      <Field rtl={rtl} label={rtl ? u.mobile : 'Mobile Number'} value="03" hint="03xxxxxxxxx" icon={Smartphone} error={error ? (rtl ? 'درست پاکستانی موبائل نمبر درج کریں۔' : 'Enter a valid Pakistani mobile number.') : ''} />
       <div className="auth-actions">
         <Button variant={error ? 'disabled' : 'primary'}>{rtl ? u.continue : 'Continue'}</Button>
         <Button variant="outline" icon={MessageCircle}>{rtl ? 'WhatsApp سے جاری رکھیں' : 'Continue with WhatsApp'}</Button>
@@ -629,7 +629,7 @@ function HomePage({ rtl = false, state = 'ready' }) {
             <div className="range"><span style={{ width: '100%' }} /></div>
             <div className="range-labels"><span>PKR 2,200</span><span>PKR 5,200</span></div>
           </div>
-          <h3>{rtl ? 'ادائیگی منصوبہ' : 'Repayment Plan'}</h3>
+          <h3>{rtl ? 'ادائیگی کا منصوبہ' : 'Repayment Plan'}</h3>
           <div className="home-plan-grid">
             {['2 Installment', '3 Installments', '4 Installments', '5 Installments', '6 Installments'].map((item, index) => (
               <button className={index === 0 ? 'selected' : ''} key={item}>{rtl ? item.replace('Installment', 'قسط').replace('Installments', 'اقساط') : item}</button>
@@ -661,7 +661,7 @@ function HomePage({ rtl = false, state = 'ready' }) {
               <>
                 <div><span>{rtl ? 'تاخیر شدہ رقم' : 'Overdue Amount'}</span><strong>PKR 36,000</strong></div>
                 <div><span>{rtl ? 'تاخیر کے دن' : 'Overdue Days'}</span><strong>5 days</strong></div>
-                <div><span>{rtl ? 'تاخیر فیس' : 'Late Fee'}</span><strong>PKR 800</strong></div>
+                <div><span>{rtl ? 'تاخیر کی فیس' : 'Late Fee'}</span><strong>PKR 800</strong></div>
                 <div><span>{rtl ? 'کل ادائیگی' : 'Total Repayment'}</span><strong>PKR 36,800</strong></div>
               </>
             )}
@@ -669,8 +669,8 @@ function HomePage({ rtl = false, state = 'ready' }) {
               <>
                 <div><span>{rtl ? 'تاخیر شدہ بل' : 'Overdue Bills'}</span><strong>3 bills</strong></div>
                 <div><span>{rtl ? 'سب سے پرانا تاخیر' : 'Oldest Overdue'}</span><strong>12 days</strong></div>
-                <div><span>{rtl ? 'تاخیر فیس' : 'Late Fees'}</span><strong>PKR 1,650</strong></div>
-                <div><span>{rtl ? 'کل واجب الادا' : 'Total Payable'}</span><strong>PKR 42,650</strong></div>
+                <div><span>{rtl ? 'تاخیر کی فیس' : 'Late Fee'}</span><strong>PKR 1,650</strong></div>
+                <div><span>{rtl ? 'کل ادائیگی' : 'Total Repayment'}</span><strong>PKR 42,650</strong></div>
               </>
             )}
           </div>
@@ -823,7 +823,7 @@ function CreditBasicSection({ rtl = false, otherLoans = false, overLimit = false
   return (
     <CreditApplicationFrame active="basic" rtl={rtl}>
       <section className="credit-form-card">
-        <h3>{rtl ? 'بنیادی پروفائل' : 'Basic profile'}</h3>
+        <h3>{rtl ? 'بنیادی پروفائل' : 'Basic Profile'}</h3>
         <p className="section-helper">
           {rtl
             ? 'یہ معلومات آپ کی بنیادی اہلیت اور مناسب کریڈٹ حد کا اندازہ لگانے میں مدد دیتی ہیں۔'
@@ -846,7 +846,7 @@ function CreditBasicSection({ rtl = false, otherLoans = false, overLimit = false
         )}
       </section>
       <section className="credit-form-card">
-        <h3>{rtl ? 'آمدنی اور ادائیگی کی صلاحیت' : 'Income & repayment ability'}</h3>
+        <h3>{rtl ? 'آمدنی اور ادائیگی کی صلاحیت' : 'Income & Repayment Ability'}</h3>
         <p className="section-helper">
           {rtl
             ? 'ہم اس سے ایسی رقم کا اندازہ لگاتے ہیں جو آپ آسانی سے واپس کر سکیں۔'
@@ -878,7 +878,7 @@ function CreditBasicSection({ rtl = false, otherLoans = false, overLimit = false
         </div>
         {otherLoans && (
           <div className="loan-amount-card">
-            <span>{rtl ? 'کل قرض کی رقم' : 'total loan amount'}</span>
+            <span>{rtl ? 'کل قرض کی رقم' : 'Total Loan Amount'}</span>
             <SelectLike>{overLimit ? '> PKR 100000' : '< PKR 5000'}</SelectLike>
             {overLimit && (
               <p className="field-error">
@@ -970,7 +970,7 @@ function BasicFormFields({ rtl = false, educationValue, maritalValue, salaryDate
   return (
     <>
       <section className="credit-form-card">
-        <h3>{rtl ? 'بنیادی پروفائل' : 'Basic profile'}</h3>
+        <h3>{rtl ? 'بنیادی پروفائل' : 'Basic Profile'}</h3>
         <p className="section-helper">
           {rtl
             ? 'یہ معلومات آپ کی بنیادی اہلیت اور مناسب کریڈٹ حد کا اندازہ لگانے میں مدد دیتی ہیں۔'
@@ -981,7 +981,7 @@ function BasicFormFields({ rtl = false, educationValue, maritalValue, salaryDate
         <SelectLike>{rtl ? 'بچوں کی تعداد' : 'Number of Children'}</SelectLike>
       </section>
       <section className="credit-form-card">
-        <h3>{rtl ? 'آمدنی اور ادائیگی کی صلاحیت' : 'Income & repayment ability'}</h3>
+        <h3>{rtl ? 'آمدنی اور ادائیگی کی صلاحیت' : 'Income & Repayment Ability'}</h3>
         <p className="section-helper">
           {rtl
             ? 'ہم اس سے ایسی رقم کا اندازہ لگاتے ہیں جو آپ آسانی سے واپس کر سکیں۔'
@@ -1068,7 +1068,7 @@ function ContactApplication({ rtl = false }) {
                 <p>{rtl ? '03 سے شروع ہونے والا 11 ہندسوں کا نمبر درج کریں۔' : 'Supports 11-digit mobile numbers starting with 03.'}</p>
               </div>
             ) : (
-              <TextLike muted>{rtl ? 'موبائل فون نمبر' : 'Mobile phone number'}</TextLike>
+              <TextLike muted>{rtl ? 'موبائل نمبر' : 'Mobile Number'}</TextLike>
             )}
           </div>
         ))}
@@ -1352,7 +1352,7 @@ function WithdrawalMethod({ rtl = false }) {
         <WalletChoice name="JazzCash" logo={walletLogos.jazzcash} />
       </div>
       <label className="wallet-number">
-        <span>{rtl ? 'موبائل والٹ اکاؤنٹ نمبر' : 'Mobile Wallet Account Number'}</span>
+        <span>{rtl ? 'موبائل والٹ نمبر' : 'Mobile Wallet Number'}</span>
         <div>0312334356</div>
       </label>
       <div className="wallet-note">
@@ -1377,8 +1377,8 @@ function WalletConfirmDialog() {
         <p>For your security, please do not share your personal details with anyone.</p>
         <div className="wallet-confirm-details">
           <ResultField label="Mobile Wallet" value="Easypaisa" />
-          <ResultField label="Mobile Number" value="0312334356" />
-          <ResultField label="Mobile name" value="aouw Idsa" />
+          <ResultField label="Mobile Wallet Number" value="0312334356" />
+          <ResultField label="Wallet Account Name" value="aouw Idsa" />
         </div>
         <div className="wallet-confirm-actions">
           <Button variant="outline" wide={false}>Modify</Button>
@@ -1420,7 +1420,7 @@ function WalletUnavailableDialog({ rtl = false, canModify = true, locked = false
         </p>
         <div className="wallet-confirm-details">
           <ResultField label={rtl ? 'موبائل والٹ' : 'Mobile Wallet'} value="Easypaisa" />
-          <ResultField label={rtl ? 'موبائل نمبر' : 'Mobile Number'} value="****67347" />
+          <ResultField label={rtl ? 'موبائل والٹ نمبر' : 'Mobile Wallet Number'} value="****67347" />
           <ResultField label={rtl ? 'صورتحال' : 'Status'} value={rtl ? 'دستیاب نہیں' : 'Unavailable'} />
         </div>
         <div className="wallet-confirm-actions">
@@ -1469,7 +1469,7 @@ function CalculatorPage({ rtl = false, months = 3 }) {
           ['APR', '273.75%'],
           [rtl ? 'مارک اپ' : 'Markup', months === 3 ? 'PKR 15,187.5' : 'PKR 30,375'],
           [rtl ? 'سروس فیس' : 'Service Fee', months === 3 ? 'PKR 1,685.5' : 'PKR 3,375'],
-          [rtl ? 'تاخیر فیس' : 'Late fee', rtl ? '2.3% روزانہ' : '2.3% per day'],
+          [rtl ? 'تاخیر کی فیس' : 'Late Fee', rtl ? '2.3% روزانہ' : '2.3% per day'],
           [rtl ? 'کل ادائیگی' : 'Total Repayment', `PKR ${total}`],
         ].map(([a, b]) => <div key={a}><span>{a}</span><strong>{b}</strong></div>)}
       </div>
@@ -1538,7 +1538,7 @@ function Settings({ rtl = false }) {
   return (
     <PhoneFrame title={rtl ? u.settings : 'Settings'} rtl={rtl} noNav>
       <MenuList rows={rtl ? [u.reset, u.devices, u.deletion] : ['Reset Password', 'Devices Manager', 'Account Deletion']} />
-      <div className="setting-row"><span>{rtl ? 'اطلاعات' : 'Notification'}</span><label className="switch"><input type="checkbox" defaultChecked /><i /></label></div>
+      <div className="setting-row"><span>{rtl ? 'اطلاعات' : 'Notifications'}</span><label className="switch"><input type="checkbox" defaultChecked /><i /></label></div>
       <Button variant="danger" icon={LogOut}>{rtl ? 'لاگ آؤٹ' : 'Log out'}</Button>
       <p className="version">V 1.1.0</p>
     </PhoneFrame>
@@ -2065,13 +2065,13 @@ function TransferFailedPage({ rtl = false }) {
       <div className="reference-state transfer-failed">
         <section className="reference-state-hero compact">
           <div className="reference-status-orb declined"><ReferenceDeclinedIcon /></div>
-          <span>{rtl ? 'درخواست کی حیثیت' : 'Application status'}</span>
+          <span>{rtl ? 'درخواست کی حیثیت' : 'Application Status'}</span>
           <h2>{rtl ? 'نامعلوم وجہ سے ناکام' : 'Failed for unknown reason'}</h2>
         </section>
         <section className="reference-detail-box">
           <div><span>{rtl ? 'رقم:' : 'Amount:'}</span><strong>PKR 3,000</strong></div>
           <div><span>{rtl ? 'والٹ:' : 'Wallet:'}</span><strong>Easypaisa</strong></div>
-          <div><span>{rtl ? 'موبائل نمبر:' : 'Mobile Number:'}</span><strong>****67347</strong></div>
+          <div><span>{rtl ? 'موبائل والٹ نمبر:' : 'Mobile Wallet Number:'}</span><strong>****67347</strong></div>
         </section>
         <section className="reference-alert-card failed">
           <span><AlertTriangle size={19} /></span>
@@ -2226,10 +2226,10 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
     ...(couponState === 'none' ? [] : [couponRow]),
     { label: rtl ? 'مارک اپ' : 'Markup', value: 'PKR 1035' },
     { label: rtl ? 'سروس فیس' : 'Service Fee', value: 'PKR 115' },
-    { label: rtl ? 'ادائیگی کی تاریخ' : 'Disbursement Date', value: '27 Jan 2026' },
+    { label: rtl ? 'اجرا کی تاریخ' : 'Disbursement Date', value: '27 Jan 2026' },
     { label: rtl ? 'کل ادائیگی' : 'Total Repayment', value: 'PKR 7150' },
     { label: rtl ? 'روزانہ شرح' : 'Daily Rate', value: '0.75%' },
-    { label: rtl ? 'تاخیر فیس' : 'Late Fee', value: rtl ? '2.3% روزانہ' : '2.3% per day', lateFee: true },
+    { label: rtl ? 'تاخیر کی فیس' : 'Late Fee', value: rtl ? '2.3% روزانہ' : '2.3% per day', lateFee: true },
     { label: rtl ? 'APR' : 'APR', value: '273%' },
   ];
   const selectedWallet = wallets.find((wallet) => wallet.id === selectedWalletId) || wallets[0];
@@ -2333,7 +2333,7 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
         ))}
       </section>
       <section className="summary-card">
-        <h3>{rtl ? 'ادائیگی کا شیڈول' : 'Repayment Schedule'}</h3>
+        <h3>{rtl ? 'ادائیگی کا منصوبہ' : 'Repayment Plan'}</h3>
         <div><span>{rtl ? 'پہلی قسط کی تاریخ' : '1st Installment Date'}</span><strong>14-Feb-2026</strong></div>
         <div><span>{rtl ? 'پہلی قسط کی رقم' : '1st Installment Amount'}</span><strong>PKR 3,575</strong></div>
         <div><span>{rtl ? 'دوسری قسط کی تاریخ' : '2nd Installment Date'}</span><strong>1-Mar-2026</strong></div>
@@ -2379,7 +2379,7 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
         </button>
       </section>
       <section className="summary-card">
-        <div><span>{rtl ? 'کولنگ آف مدت' : 'Cooling off Period'}</span><strong>24H</strong></div>
+        <div><span>{rtl ? 'کولنگ آف مدت' : 'Cooling Off Period'}</span><strong>24H</strong></div>
         <p>{rtl ? 'اگر آپ کولنگ آف مدت میں ادائیگی کرتے ہیں تو صرف CIB، NADRA اور فنڈ ٹرانسفر لاگت وصول ہوگی۔' : "You will only be charged for CIB,NADRA and fund's transfer cost if you repay within cooling off period."}</p>
       </section>
       <section className="summary-card">
@@ -2600,7 +2600,7 @@ function LoanWalletFlow({ rtl = false, mode, initialStep = 'form', wallets, sele
               </div>
             )}
             <label className="wallet-add-number">
-              <span>{rtl ? 'موبائل والٹ نمبر' : 'Mobile wallet number'}</span>
+              <span>{rtl ? 'موبائل والٹ نمبر' : 'Mobile Wallet Number'}</span>
               <input dir="ltr" inputMode="numeric" value={number} onChange={(event) => setNumber(event.target.value.replace(/\D/g, '').slice(0, 11))} />
             </label>
             <div className="wallet-owner-note"><ShieldCheck size={18} /><span>{rtl ? 'نام اور CNIC کی خودکار تصدیق ہوگی۔' : 'Account name and CNIC will be verified automatically.'}</span></div>
@@ -2669,7 +2669,7 @@ const phase3Urdu = {
   progress: 'جاری',
   history: 'ہسٹری',
   repayment: 'ادائیگی',
-  totalPayable: 'کل قابل ادائیگی',
+  totalPayable: 'کل ادائیگی',
   outstanding: 'بقایا رقم',
   disbursement: 'اجرا کی تاریخ',
   details: 'آرڈر کی تفصیلات',
@@ -2760,7 +2760,7 @@ function Phase3AmountSummary({ outstanding = phase3Order.outstanding, showDate =
       <h2>{rtl ? phase3Urdu.repayment : 'Repayment'}</h2>
       <div className="phase3-metrics">
         <div>
-          <span>{rtl ? phase3Urdu.totalPayable : 'Total Payable'}</span>
+          <span>{rtl ? phase3Urdu.totalPayable : 'Total Repayment'}</span>
           <strong>PKR {phase3Order.total}</strong>
         </div>
         <div>
@@ -3003,14 +3003,14 @@ function Phase3OrderDetails({ state = 'upcoming', rtl = false, initialEarlySettl
   return (
     <PhoneFrame title={rtl ? phase3Urdu.titleOrder : 'Order details'} tab="repay" rtl={rtl} className="phase3-phone phase3-order-phone">
       <section className="phase3-order-head">
-        <div><span>{rtl ? phase3Urdu.totalPayable : 'Total Payable'}</span><strong>PKR {phase3Order.total}</strong></div>
+        <div><span>{rtl ? phase3Urdu.totalPayable : 'Total Repayment'}</span><strong>PKR {phase3Order.total}</strong></div>
         <div><span>{rtl ? phase3Urdu.outstanding : 'Outstanding Amount'}</span><strong>PKR {outstanding}</strong></div>
       </section>
       {overdue && <div className="phase3-detail-loan-id"><Phase3LoanId rtl={rtl} /></div>}
       <section className="phase3-detail-list">
         <div><span>{rtl ? phase3Urdu.markup : 'Markup'}</span><strong>{phase3Order.markup}</strong></div>
         <div><span>{rtl ? phase3Urdu.couponApplied : 'Discount'}</span><strong dir="ltr">-{phase3Order.coupon}</strong></div>
-        <div><span>{rtl ? phase3Urdu.terms : 'Terms'}</span><strong>{rtl ? '4 اقساط · 60 دن' : phase3Order.terms}</strong></div>
+        <div><span>{rtl ? phase3Urdu.terms : 'Loan Term'}</span><strong>{rtl ? '4 اقساط · 60 دن' : phase3Order.terms}</strong></div>
         <div><span>{rtl ? phase3Urdu.disbursement : 'Disbursement Date'}</span><strong><Phase3Date>{phase3Order.date}</Phase3Date></strong></div>
         <div><span>{rtl ? phase3Urdu.service : 'Service Fee'}</span><strong>{phase3Order.service}</strong></div>
         {lateFee !== '0' && <div><span>{rtl ? phase3Urdu.lateFee : 'Late Fee'}</span><strong>{lateFee}</strong></div>}
@@ -3103,16 +3103,16 @@ function Phase3WalletRow({ wallet = 'easypaisa', open = false, rtl = false }) {
 
 function Phase3Payment({ coupon = 'available', open = null, rtl = false }) {
   return (
-    <PhoneFrame title={rtl ? phase3Urdu.repayment : 'repay'} tab="repay" rtl={rtl} className="phase3-phone phase3-payment-phone">
+    <PhoneFrame title={rtl ? phase3Urdu.repayment : 'Repayment'} tab="repay" rtl={rtl} className="phase3-phone phase3-payment-phone">
       <section className="phase3-payment-summary">
         <span>{rtl ? phase3Urdu.paymentAmount : 'Repayment Amount'}</span>
         <strong>PKR 2,225</strong>
         {coupon === 'none' && <div><span>{rtl ? phase3Urdu.dueDate : 'Due Date'}</span><strong><Phase3Date>19 Mar 2026</Phase3Date></strong></div>}
         {coupon === 'applied' && <div><span>{rtl ? phase3Urdu.coupon : 'Coupon'}</span><strong>-300</strong></div>}
         {coupon === 'available' && <button><span>{rtl ? phase3Urdu.coupon : 'Coupon'}</span><strong>{rtl ? phase3Urdu.available : '1 Available'} {rtl ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}</strong></button>}
-        <div><span>{rtl ? phase3Urdu.orderNumber : 'Order number'}</span><strong>1243243254</strong></div>
-        <div><span>{rtl ? phase3Urdu.billerName : 'Biller name'}</span><strong>jack lee</strong></div>
-        <div><span>{rtl ? phase3Urdu.phoneNumber : 'Phone number'}</span><strong>9234567367842</strong></div>
+        <div><span>{rtl ? phase3Urdu.orderNumber : 'Order Number'}</span><strong>1243243254</strong></div>
+        <div><span>{rtl ? phase3Urdu.billerName : 'Biller Name'}</span><strong>jack lee</strong></div>
+        <div><span>{rtl ? phase3Urdu.phoneNumber : 'Mobile Number'}</span><strong>9234567367842</strong></div>
       </section>
       <h2 className="phase3-wallet-title">{rtl ? phase3Urdu.selectWallet : 'Please select a wallet for payment.'}</h2>
       <Phase3WalletRow rtl={rtl} wallet="easypaisa" open={open === 'easypaisa'} />
@@ -3133,7 +3133,7 @@ function FundsDisbursed({ rtl = false }) {
         <section className="funds-detail">
           <div><span>Amount</span><strong>PKR 3,000</strong></div>
           <div><span>Wallet</span><strong>EasyPaisa</strong></div>
-          <div><span>Mobile Number</span><strong>****67347</strong></div>
+          <div><span>Mobile Wallet Number</span><strong>****67347</strong></div>
         </section>
         <ol>
           <li>{rtl ? 'اگر آپ کو رقم موصول نہیں ہوئی تو براہ کرم ہم سے رابطہ کریں۔' : 'If you have not received the payment, please contact us.'}</li>
