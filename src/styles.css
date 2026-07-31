@@ -4205,8 +4205,8 @@ button { cursor: pointer; }
 
 .matched-plan-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(132px, .9fr);
-  gap: 10px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
   margin-bottom: 14px;
   padding: 16px;
   border: 1px solid rgba(216,230,226,.95);
@@ -4222,6 +4222,7 @@ button { cursor: pointer; }
   grid-template-columns: 34px 1fr auto;
   gap: 10px;
   align-items: center;
+  margin-bottom: 13px;
 }
 
 .matched-plan-head > span {
@@ -4264,19 +4265,20 @@ button { cursor: pointer; }
 }
 
 .matched-plan-amount {
-  display: grid;
-  gap: 7px;
-  align-content: center;
-  min-height: 74px;
-  padding: 11px 12px;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
   border: 1px solid rgba(8,124,98,.12);
-  border-radius: 16px;
+  border-radius: 16px 16px 0 0;
   background: #f3fbf8;
 }
 
 .matched-plan-amount strong {
   color: #063326;
-  font-size: 26px;
+  font-size: 22px;
   line-height: 1;
   letter-spacing: 0;
   white-space: nowrap;
@@ -4290,14 +4292,16 @@ button { cursor: pointer; }
 }
 
 .matched-plan-term {
-  min-height: 74px;
-  display: grid;
-  align-content: center;
-  gap: 7px;
-  padding: 11px 12px;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
   border: 1px solid rgba(8,124,98,.12);
-  border-radius: 16px;
-  background: #f3fbf8;
+  border-top: 0;
+  border-radius: 0 0 16px 16px;
+  background: #f8fcfb;
 }
 
 .matched-plan-term em {
@@ -4309,10 +4313,10 @@ button { cursor: pointer; }
 
 .matched-plan-term strong {
   color: #063326;
-  font-size: 13px;
-  line-height: 1.18;
+  font-size: 14px;
+  line-height: 1.25;
   text-align: left;
-  text-wrap: balance;
+  white-space: nowrap;
 }
 
 .phone[dir="rtl"] .matched-plan-term strong {

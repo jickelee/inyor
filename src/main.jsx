@@ -2290,7 +2290,7 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
         </div>
         <div className="matched-plan-amount">
           <em>{rtl ? 'قرض کی رقم' : 'Loan Amount'}</em>
-          <strong>PKR 5,000</strong>
+          <strong>PKR 50,000</strong>
         </div>
         <div className="matched-plan-term">
           <em>{rtl ? 'مدت' : 'Term'}</em>
