@@ -1521,15 +1521,18 @@ function MenuList({ rows }) {
   return <div className="menu-list">{rows.map((r) => <button key={r}><span>{r}</span><ChevronRight /></button>)}</div>;
 }
 
-function ProfileVerification({ rtl = false }) {
+function ProfileVerification({ rtl = false, allComplete = false }) {
   return (
     <PhoneFrame title={rtl ? u.profile : 'Profile'} rtl={rtl} noNav>
       <Checklist rows={[
         [rtl ? 'ذاتی معلومات' : 'Personal Info', rtl ? 'تصدیق شدہ' : 'Verified', true],
-        [rtl ? 'رابطے' : 'Contacts', rtl ? 'تصدیق نہیں ہوئی' : 'Not verified', false],
-        ['CNIC', rtl ? 'تصدیق نہیں ہوئی' : 'Not verified', false],
-        [rtl ? 'بینک / والٹ' : 'Bank / Wallet', rtl ? 'تصدیق نہیں ہوئی' : 'Not verified', false],
+        [rtl ? 'رابطے' : 'Contacts', allComplete ? (rtl ? 'تصدیق شدہ' : 'Verified') : (rtl ? 'تصدیق نہیں ہوئی' : 'Not verified'), allComplete],
+        ['CNIC', allComplete ? (rtl ? 'تصدیق شدہ' : 'Verified') : (rtl ? 'تصدیق نہیں ہوئی' : 'Not verified'), allComplete],
+        [rtl ? 'بینک / والٹ' : 'Bank / Wallet', allComplete ? (rtl ? 'تصدیق شدہ' : 'Verified') : (rtl ? 'پہلے CNIC مکمل کریں' : 'Please complete CNIC first'), allComplete],
       ]} />
+      <Button variant={allComplete ? 'primary' : 'disabled'} disabled={!allComplete}>
+        {rtl ? 'کریڈٹ کی درخواست جمع کریں' : 'Submit Credit Application'}
+      </Button>
     </PhoneFrame>
   );
 }
@@ -1590,6 +1593,167 @@ function CouponEmpty({ rtl = false }) {
     <PhoneFrame title={rtl ? u.coupons : 'Coupon'} rtl={rtl} noNav>
       <div className="tabs"><button className="active">{rtl ? 'دستیاب' : 'Available'}</button><button>{rtl ? 'ہسٹری' : 'History'}</button></div>
       <div className="empty-state"><Ticket /><strong>{rtl ? 'ابھی کوئی کوپن نہیں' : 'No coupons yet'}</strong><p>{rtl ? 'دستیاب ڈسکاؤنٹس یہاں دکھیں گے۔' : 'Available discounts will appear here.'}</p></div>
+    </PhoneFrame>
+  );
+}
+
+function CouponListPage({ rtl = false, initialTab = 'available' }) {
+  const [tab, setTab] = React.useState(initialTab);
+  const [ruleCoupon, setRuleCoupon] = React.useState(null);
+  const available = [
+    { id: 'limit', type: 'limit', title: rtl ? 'کریڈٹ لمٹ میں اضافہ' : 'Credit limit boost', amount: '+5,000', expiry: '31 Aug 2026', desc: rtl ? 'اگلی منظور شدہ درخواست پر استعمال کریں' : 'Use on your next approved application' },
+    { id: 'repay', type: 'repay', title: rtl ? 'ادائیگی میں رعایت' : 'Repayment discount', amount: '-300', expiry: '18 Aug 2026', desc: rtl ? 'متعدد بلوں کی مکمل ادائیگی پر دستیاب' : 'Available when repaying multiple bills in full' },
+  ];
+  const history = [
+    { id: 'expired', type: 'limit', title: rtl ? 'کریڈٹ لمٹ میں اضافہ' : 'Credit limit boost', amount: '+2,000', expiry: '12 Jul 2026', desc: rtl ? 'میعاد ختم' : 'Expired' },
+    { id: 'used', type: 'repay', title: rtl ? 'ادائیگی میں رعایت' : 'Repayment discount', amount: '-200', expiry: '16 Jul 2026', desc: rtl ? 'استعمال شدہ' : 'Used for order INY-240716-08' },
+  ];
+  const rows = tab === 'available' ? available : history;
+  return (
+    <PhoneFrame title={rtl ? u.coupons : 'Coupon'} rtl={rtl} noNav>
+      <div className="tabs"><button className={tab === 'available' ? 'active' : ''} onClick={() => setTab('available')}>{rtl ? 'دستیاب' : 'Available'}</button><button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}>{rtl ? 'ہسٹری' : 'History'}</button></div>
+      <div className={`coupon-option-list account-coupon-list ${tab === 'history' ? 'history' : ''}`}>
+        {rows.map((coupon) => (
+          <div className="coupon-option" key={coupon.id}>
+            <span><Ticket size={18} /></span>
+            <div><strong>{coupon.title}</strong><small className="coupon-expiry">{tab === 'available' ? (rtl ? 'میعاد' : 'Expires') : (rtl ? 'تاریخ' : 'Date')} <Phase3Date>{coupon.expiry}</Phase3Date></small><small>{coupon.desc}</small></div>
+            <em>{coupon.amount}</em>
+            <button type="button" className="coupon-rule-button" onClick={() => setRuleCoupon(coupon)} aria-label={rtl ? 'استعمال کے قواعد دیکھیں' : 'View coupon rules'}><Info size={16} /></button>
+          </div>
+        ))}
+      </div>
+      {ruleCoupon && (
+        <div className="loan-info-overlay" role="dialog" aria-modal="true" aria-labelledby="coupon-rule-title" onClick={() => setRuleCoupon(null)}>
+          <div className="coupon-select-modal coupon-rule-modal" onClick={(event) => event.stopPropagation()}>
+            <header className="coupon-select-head">
+              <span><Ticket size={20} /></span>
+              <div><h3 id="coupon-rule-title">{rtl ? 'استعمال کے قواعد' : 'Coupon Rules'}</h3><p>{ruleCoupon.title}</p></div>
+              <button type="button" onClick={() => setRuleCoupon(null)} aria-label={rtl ? 'بند کریں' : 'Close'}><X size={18} /></button>
+            </header>
+            <div className="fee-card coupon-rule-details">
+              <div><span>{rtl ? 'فائدہ' : 'Benefit'}</span><strong>{ruleCoupon.amount}</strong></div>
+              <div><span>{rtl ? 'موثر تاریخ' : 'Valid until'}</span><strong><Phase3Date>{ruleCoupon.expiry}</Phase3Date></strong></div>
+            </div>
+            <section className="coupon-rules-content">
+              <h4>{rtl ? 'استعمال کے قواعد' : 'Usage rules'}</h4>
+              <ul>
+                {(ruleCoupon.type === 'limit'
+                  ? (rtl ? ['صرف اگلی منظور شدہ قرض کی درخواست پر لاگو ہے۔', 'ایک درخواست پر صرف ایک کوپن استعمال ہو سکتا ہے۔', 'نقد میں تبدیل یا دوسرے اکاؤنٹ میں منتقل نہیں کیا جا سکتا۔', 'میعاد ختم ہونے کے بعد کوپن خود بخود ناکارہ ہو جائے گا۔'] : ['Valid only for the next approved loan application.', 'Only one coupon can be used per application.', 'Cannot be exchanged for cash or transferred to another account.', 'The coupon becomes invalid automatically after its expiry date.'])
+                  : (rtl ? ['صرف اہل زیر التوا بلوں کی مکمل ادائیگی پر لاگو ہے۔', 'جزوی ادائیگی پر رعایت لاگو نہیں ہوگی۔', 'دیگر رعایتی آفرز کے ساتھ استعمال نہیں ہو سکتا۔', 'میعاد ختم ہونے سے پہلے ادائیگی مکمل کریں۔'] : ['Applies only when eligible outstanding bills are repaid in full.', 'The discount does not apply to partial repayments.', 'Cannot be combined with another repayment offer.', 'Repayment must be completed before the coupon expiry date.'])
+                ).map((rule) => <li key={rule}>{rule}</li>)}
+              </ul>
+            </section>
+            <Button type="button" onClick={() => setRuleCoupon(null)}>{rtl ? 'سمجھ گیا' : 'Got it'}</Button>
+          </div>
+        </div>
+      )}
+    </PhoneFrame>
+  );
+}
+
+const couponCatalog = {
+  available: [
+    { id: 'limit-boost', type: 'limit', amount: 'PKR 5,000', title: 'Credit Limit Boost', description: 'Increase your available credit limit on the next successful application.', expiry: 'Valid until 31 Aug 2026', tag: 'For borrowing' },
+    { id: 'repay-save', type: 'repay', amount: 'PKR 300', title: 'Repayment Discount', description: 'Save PKR 300 when repaying two or more outstanding bills together.', expiry: 'Valid until 18 Aug 2026', tag: 'For repayment' },
+  ],
+  history: [
+    { id: 'expired-limit', type: 'limit', amount: 'PKR 2,000', title: 'Credit Limit Boost', description: 'This credit limit benefit was not used before the expiry date.', expiry: 'Expired on 12 Jul 2026', tag: 'Expired', expired: true },
+    { id: 'used-repay', type: 'repay', amount: 'PKR 200', title: 'Repayment Discount', description: 'Used for order INY-240716-08.', expiry: 'Used on 16 Jul 2026', tag: 'Used', used: true },
+  ],
+};
+
+function CouponCard({ coupon, rtl = false }) {
+  const isLimit = coupon.type === 'limit';
+  return (
+    <article className={`account-coupon ${coupon.expired ? 'expired' : ''} ${coupon.used ? 'used' : ''}`}>
+      <div className={`coupon-value ${isLimit ? 'limit' : 'repay'}`}>
+        {isLimit ? <Gift size={20} /> : <Ticket size={20} />}
+        <strong>{coupon.amount}</strong>
+        <span>{isLimit ? (rtl ? 'حد میں اضافہ' : 'LIMIT BOOST') : (rtl ? 'ادائیگی میں بچت' : 'REPAYMENT')}</span>
+      </div>
+      <div className="coupon-copy">
+        <span className="coupon-tag">{coupon.tag}</span>
+        <h3>{coupon.title}</h3>
+        <p>{coupon.description}</p>
+        <small>{coupon.expiry}</small>
+      </div>
+      {!coupon.expired && !coupon.used && <button className="coupon-use">{rtl ? 'استعمال' : 'Use now'} <ChevronRight size={15} /></button>}
+    </article>
+  );
+}
+
+function CouponCenter({ rtl = false, initialTab = 'available' }) {
+  const [tab, setTab] = React.useState(initialTab);
+  const coupons = couponCatalog[tab];
+  return (
+    <PhoneFrame title={rtl ? u.coupons : 'My Coupons'} rtl={rtl} noNav>
+      <div className="coupon-balance-head">
+        <div><span>{rtl ? 'دستیاب فوائد' : 'Available benefits'}</span><strong>2</strong></div>
+        <div className="coupon-head-icon"><Ticket /></div>
+      </div>
+      <div className="tabs coupon-tabs">
+        <button className={tab === 'available' ? 'active' : ''} onClick={() => setTab('available')}>{rtl ? 'دستیاب' : 'Available'} <em>2</em></button>
+        <button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}>{rtl ? 'ہسٹری' : 'History'} <em>2</em></button>
+      </div>
+      <p className="coupon-context-note"><Info size={15} /> {tab === 'available' ? 'Eligible coupons are also shown automatically in Loan Summary and Repayment.' : 'Used and expired coupons are kept here for 90 days.'}</p>
+      <div className="coupon-list">{coupons.map((coupon) => <CouponCard coupon={coupon} rtl={rtl} key={coupon.id} />)}</div>
+    </PhoneFrame>
+  );
+}
+
+const verificationRows = [
+  { id: 'basic', label: 'Personal information', note: 'Identity and employment details', icon: User },
+  { id: 'contacts', label: 'Contact information', note: 'Two trusted emergency contacts', icon: Phone },
+  { id: 'cnic', label: 'CNIC verification', note: 'CNIC photos and facial check', icon: Camera },
+  { id: 'wallet', label: 'Bank / wallet account', note: 'Account for receiving funds', icon: CreditCard },
+];
+
+function VerificationHub({ rtl = false, completed = ['basic'] }) {
+  const [activeStep, setActiveStep] = React.useState(null);
+  if (activeStep) return <ProfileVerificationStep rtl={rtl} step={activeStep} onBack={() => setActiveStep(null)} />;
+  return (
+    <PhoneFrame title={rtl ? 'پروفائل کی تصدیق' : 'Profile Verification'} rtl={rtl} noNav>
+      <section className="verification-overview">
+        <div className="verification-score"><strong>{completed.length}/4</strong><span>{rtl ? 'مکمل' : 'completed'}</span></div>
+        <div><h2>{rtl ? 'اپنی پروفائل مکمل کریں' : 'Complete your profile'}</h2><p>{rtl ? 'زیادہ تیز جائزے کے لیے درست معلومات فراہم کریں۔' : 'Provide accurate information for a faster eligibility review.'}</p></div>
+      </section>
+      <div className="verification-list">
+        {verificationRows.map(({ id, label, note, icon: Icon }, index) => {
+          const done = completed.includes(id);
+          const current = !done && verificationRows.slice(0, index).every((row) => completed.includes(row.id));
+          return (
+            <button key={id} className={current ? 'current' : ''} onClick={() => setActiveStep(id)}>
+              <span className={`verification-row-icon ${done ? 'done' : ''}`}>{done ? <Check size={18} /> : <Icon size={18} />}</span>
+              <span><strong>{label}</strong><small>{note}</small></span>
+              <em className={done ? 'done' : current ? 'current' : ''}>{done ? 'Verified' : current ? 'Continue' : 'Required'}</em>
+              <ChevronRight size={17} />
+            </button>
+          );
+        })}
+      </div>
+      <div className="privacy-assurance"><ShieldCheck size={18} /><span><strong>Your data is protected</strong>Information is encrypted and used only for identity and credit assessment.</span></div>
+    </PhoneFrame>
+  );
+}
+
+function ProfileVerificationStep({ rtl = false, step = 'basic', onBack }) {
+  const [saved, setSaved] = React.useState(false);
+  const config = {
+    basic: { title: 'Personal information', progress: '1 of 4', fields: [['Full name as per CNIC', 'Muhammad Ali Khan'], ['Date of birth', '12 May 1997'], ['Education', 'Bachelor degree'], ['Employment status', 'Employed'], ['Monthly income', 'PKR 65,000']] },
+    contacts: { title: 'Contact information', progress: '2 of 4', fields: [['Primary contact', 'Father'], ['Full name', 'Ahmed Khan'], ['Mobile number', '0300 123 4567'], ['Secondary contact', 'Colleague'], ['Mobile number', '0312 765 4321']] },
+    cnic: { title: 'CNIC verification', progress: '3 of 4', fields: [['CNIC number', '35202-1234567-1'], ['Issue date', '18 Jun 2021'], ['Expiry date', '18 Jun 2031']] },
+    wallet: { title: 'Bank / wallet account', progress: '4 of 4', fields: [['Account type', 'Easypaisa'], ['Account holder', 'Muhammad Ali Khan'], ['Mobile / IBAN', '0300 123 4567']] },
+  }[step];
+  return (
+    <PhoneFrame title={config.title} rtl={rtl} noNav onBack={onBack}>
+      <div className="profile-step-progress"><span>{config.progress}</span><i><b style={{ width: `${(['basic','contacts','cnic','wallet'].indexOf(step) + 1) * 25}%` }} /></i></div>
+      {step === 'contacts' && <div className="step-tip"><Info size={17} />We may contact these people only if we cannot reach you regarding an active loan.</div>}
+      {step === 'cnic' && <div className="document-upload-row"><button><Camera /><span><strong>CNIC front</strong><small>Clear and readable</small></span><Check /></button><button><Camera /><span><strong>CNIC back</strong><small>Clear and readable</small></span><Check /></button></div>}
+      {step === 'wallet' && <div className="wallet-choice"><button className="selected"><WalletCards />Easypaisa<Check /></button><button><Landmark />Bank account</button><button><Smartphone />JazzCash</button></div>}
+      <div className="profile-form">{config.fields.map(([label, value]) => <Field key={label} label={label} value={value} />)}</div>
+      {step === 'cnic' && <button className="face-check-row"><span className="verification-row-icon"><User size={18} /></span><span><strong>Facial verification</strong><small>Match your face with your CNIC</small></span><em>Start</em><ChevronRight size={17} /></button>}
+      {saved ? <div className="saved-feedback"><Check />Information saved successfully</div> : <Button onClick={() => setSaved(true)}>{step === 'wallet' ? 'Verify account' : 'Save and continue'}</Button>}
+      <p className="form-footnote"><LockKeyhole size={14} /> Your information is encrypted and cannot be edited while verification is in progress.</p>
     </PhoneFrame>
   );
 }
@@ -3404,6 +3568,26 @@ const newRequirementNames = new Set([
 ]);
 
 const phase3RequirementNames = new Set(phase3RepaymentPairs.map(([name]) => name));
+const personalCenterPairs = [
+  ['Personal Center / Coupon available', (rtl) => <CouponListPage rtl={rtl} />],
+  ['Personal Center / Coupon history', (rtl) => <CouponListPage rtl={rtl} initialTab="history" />],
+  ['Personal Center / Verification overview', (rtl) => <ProfileVerification rtl={rtl} />],
+  ['Personal Center / Verification completed', (rtl) => <ProfileVerification rtl={rtl} allComplete />],
+  ['Personal Center / Personal information', (rtl) => <CreditBasicSection rtl={rtl} />],
+  ['Personal Center / Contact information', (rtl) => <ContactApplication rtl={rtl} />],
+  ['Personal Center / CNIC verification', (rtl) => <CnicApplication rtl={rtl} />],
+  ['Personal Center / Bank wallet binding', (rtl) => <WithdrawalMethod rtl={rtl} />],
+];
+const personalCenterLabels = {
+  'Personal Center / Coupon available': '优惠券／可用状态',
+  'Personal Center / Coupon history': '优惠券／已使用与过期',
+  'Personal Center / Verification overview': '个人信息验证／流程入口',
+  'Personal Center / Verification completed': '个人信息验证／可提交授信',
+  'Personal Center / Personal information': '个人信息验证／基本信息',
+  'Personal Center / Contact information': '个人信息验证／联系人信息',
+  'Personal Center / CNIC verification': '个人信息验证／CNIC',
+  'Personal Center / Bank wallet binding': '个人信息验证／银行卡与钱包',
+};
 const newDialogNames = ['Credit Application Limit Dialog', 'Application Exit Retention Dialog', 'Wallet Confirm Dialog', 'Satisfaction Feedback Dialog'];
 const oldDialogNames = ['Dialogs, Toasts, System Permission'];
 const pageId = (name) => `page-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`;
@@ -3562,6 +3746,12 @@ function PageNav() {
         </nav>
       </section>
       <section>
+        <h2>个人中心补充页面</h2>
+        <nav className="nav-links personal-center-nav">
+          {personalCenterPairs.map(([name]) => <a key={name} href={`#${pageId(name)}`}>{personalCenterLabels[name]}</a>)}
+        </nav>
+      </section>
+      <section>
         <h2>新需求页面</h2>
         <nav className="nav-links">
           {newPages.map(([name]) => <a key={name} href={`#${pageId(name)}`}>{translateNavName(name)}</a>)}
@@ -3595,6 +3785,19 @@ function ScreenSet({ title, kicker, className = '' }) {
           <div className="page-pair phase3-page new-page" id={pageId(name)} key={name}>
             <h3>{name}</h3>
             <div className="pair-body phase3-pair-body">
+              <div><span className="locale-label">English · LTR</span>{render(false)}</div>
+              <div><span className="locale-label">Urdu · RTL</span>{render(true)}</div>
+            </div>
+          </div>
+        ))}
+        <div className="page-pair personal-center-section-pair" id="personal-center-start">
+          <h3>Personal Center Extensions · 个人中心补充页面</h3>
+          <p className="phase3-section-note">包含优惠券完整状态与个人资料验证流程，延续原有 Account 与借款验证样式。</p>
+        </div>
+        {personalCenterPairs.map(([name, render]) => (
+          <div className="page-pair personal-center-page new-page" id={pageId(name)} key={name}>
+            <h3>{name}</h3>
+            <div className="pair-body">
               <div><span className="locale-label">English · LTR</span>{render(false)}</div>
               <div><span className="locale-label">Urdu · RTL</span>{render(true)}</div>
             </div>

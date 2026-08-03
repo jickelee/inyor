@@ -5118,6 +5118,38 @@ button { cursor: pointer; }
   gap: 10px;
 }
 
+.account-coupon-list { margin-top: 14px; }
+.account-coupon-list .coupon-option { grid-template-columns: 34px minmax(0, 1fr) auto auto; }
+.account-coupon-list .coupon-option small,
+.account-coupon-list .coupon-option small.coupon-expiry { font-weight: 500; }
+.account-coupon-list.history .coupon-option { opacity: .62; }
+.coupon-rule-button {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid #cbd7d3;
+  border-radius: 50%;
+  color: #087c62;
+  background: #fff;
+  font-size: 10px;
+  font-weight: 900;
+}
+.coupon-rule-modal { gap: 12px; }
+.coupon-rule-details { margin: 0; }
+.coupon-rules-content {
+  min-height: 190px;
+  padding: 14px;
+  border: 1px solid #dfe8e5;
+  border-radius: 14px;
+  background: #f8fbfa;
+}
+.coupon-rules-content h4 { margin: 0 0 10px; font-size: 13px; }
+.coupon-rules-content ul { margin: 0; padding-left: 18px; color: #65746f; }
+.coupon-rules-content li { margin-bottom: 8px; font-size: 11px; line-height: 1.45; }
+[dir="rtl"] .coupon-rules-content ul { padding-left: 0; padding-right: 18px; }
+
 .coupon-full-repayment-notice {
   display: grid;
   grid-template-columns: 20px minmax(0, 1fr);
@@ -5186,12 +5218,12 @@ button { cursor: pointer; }
 .coupon-option small {
   color: #6b7785;
   font-size: 11px;
-  font-weight: 750;
+  font-weight: 500;
 }
 
 .coupon-option small.coupon-expiry {
   color: #9a6700;
-  font-weight: 900;
+  font-weight: 500;
 }
 
 .coupon-option em {
