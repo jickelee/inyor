@@ -2344,7 +2344,7 @@ function LoanFundsOtp({ rtl = false, target = '****67347', onClose, onVerified }
   );
 }
 
-function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed', walletState = 'available', couponState = 'applied', initialCouponDialog = false, boundWalletType = null, initialWalletStep = 'form', showWalletAddAction = true, initialAcceptStep = 'summary' }) {
+function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed', walletState = 'available', couponState = 'applied', initialCouponDialog = false, boundWalletType = null, initialWalletStep = 'form', showWalletAddAction = true, showWalletUseAction = true, initialAcceptStep = 'summary' }) {
   const [acceptStep, setAcceptStep] = React.useState(initialAcceptStep);
   const [showLateFeeInfo, setShowLateFeeInfo] = React.useState(false);
   const [showWalletUnavailable, setShowWalletUnavailable] = React.useState(false);
@@ -2608,6 +2608,7 @@ function LoanSummary({ rtl = false, expired = false, initialWalletFlow = 'closed
           editingWallet={wallets.find((wallet) => wallet.id === editingWalletId) || null}
           blockedProviders={blockedWalletProviders}
           showAddAction={showWalletAddAction}
+          showUseAction={showWalletUseAction}
         />
       )}
       {showLateFeeInfo && (
@@ -2699,7 +2700,7 @@ function CouponSelectDialog({ rtl = false, applied = false, fullRepaymentNotice 
   );
 }
 
-function LoanWalletFlow({ rtl = false, mode, initialStep = 'form', wallets, selectedWalletId, onSelect, onClose, onAdd, onModify, onBack, onSave, editingWallet = null, blockedProviders = [], showAddAction = true }) {
+function LoanWalletFlow({ rtl = false, mode, initialStep = 'form', wallets, selectedWalletId, onSelect, onClose, onAdd, onModify, onBack, onSave, editingWallet = null, blockedProviders = [], showAddAction = true, showUseAction = true }) {
   const titleId = React.useId();
   const availableProvider = ['Easypaisa', 'JazzCash'].find((name) => !blockedProviders.includes(name)) || 'Easypaisa';
   const isModify = mode === 'modify';
@@ -2802,7 +2803,7 @@ function LoanWalletFlow({ rtl = false, mode, initialStep = 'form', wallets, sele
               })}
             </div>
             {showAddAction && <button type="button" className="loan-wallet-add" onClick={onAdd}><span>+</span>{rtl ? 'نیا والٹ شامل کریں' : 'Add a new wallet'}{rtl ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}</button>}
-            <Button type="button" onClick={onClose}>{rtl ? 'یہ والٹ استعمال کریں' : 'Use selected wallet'}</Button>
+            {showUseAction && <Button type="button" onClick={onClose}>{rtl ? 'یہ والٹ استعمال کریں' : 'Use selected wallet'}</Button>}
           </>
         )}
       </section>
@@ -3504,8 +3505,8 @@ const phase3RepaymentPairs = [
   ['Phase 3 Repayment / Loan summary modify wallet', (rtl) => <LoanSummary rtl={rtl} initialWalletFlow="modify" />],
   ['Phase 3 Repayment / Loan summary add new wallet one type bound', (rtl) => <LoanSummary rtl={rtl} initialWalletFlow="add" boundWalletType="Easypaisa" />],
   ['Phase 3 Repayment / Loan summary add new wallet OTP', (rtl) => <LoanSummary rtl={rtl} initialWalletFlow="add" initialWalletStep="verify" />],
-  ['Phase 3 Repayment / Loan summary add new wallet verified', (rtl) => <LoanSummary rtl={rtl} initialWalletFlow="added" />],
-  ['Phase 3 Repayment / Loan summary add new wallet verified no add', (rtl) => <LoanSummary rtl={rtl} initialWalletFlow="added" showWalletAddAction={false} />],
+  ['Phase 3 Repayment / Loan summary add new wallet verified', (rtl) => <LoanSummary rtl={rtl} initialWalletFlow="added" showWalletUseAction={false} />],
+  ['Phase 3 Repayment / Loan summary add new wallet verified no add', (rtl) => <LoanSummary rtl={rtl} initialWalletFlow="added" showWalletAddAction={false} showWalletUseAction={false} />],
   ['Phase 3 Repayment / Loan summary no wallet', (rtl) => <LoanSummary rtl={rtl} walletState="none" />],
   ['Phase 3 Repayment / Loan summary coupon available', (rtl) => <LoanSummary rtl={rtl} couponState="available" />],
   ['Phase 3 Repayment / Loan summary no coupon available', (rtl) => <LoanSummary rtl={rtl} couponState="none" />],
