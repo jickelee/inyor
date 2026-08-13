@@ -1950,6 +1950,63 @@ function FacialGuide({ rtl = false, onBack, onStart }) {
   );
 }
 
+function RequiredPermissionDialog({ rtl = false, deniedPermission = 'camera', blocked = false, onRetry, onOpenSettings, onDismiss }) {
+  const permissionMap = {
+    camera: { label: rtl ? 'کیمرہ' : 'Camera', Icon: Camera, purpose: rtl ? 'CNIC کی تصویر لینے' : 'take your CNIC photos' },
+    appList: { label: rtl ? 'ایپ لسٹ' : 'App list', Icon: ListChecks, purpose: rtl ? 'چہرے کی تصدیق شروع کرنے' : 'start facial verification' },
+    location: { label: rtl ? 'لوکیشن' : 'Location', Icon: MapPin, purpose: rtl ? 'چہرے کی تصدیق شروع کرنے' : 'start facial verification' },
+  };
+  const item = permissionMap[deniedPermission];
+  const copy = {
+    title: blocked ? (rtl ? 'سیٹنگز میں اجازت دیں' : `Allow ${item.label} in Settings`) : (rtl ? `${item.label} کی اجازت درکار ہے` : `${item.label} permission required`),
+    body: blocked
+      ? (rtl ? `${item.purpose} کے لیے Inyor کی ${item.label} اجازت سیٹنگز میں چالو کریں۔` : `To ${item.purpose}, enable ${item.label} permission for Inyor in your device settings.`)
+      : (rtl ? `${item.purpose} کے لیے ${item.label} کی اجازت ضروری ہے۔ اس کے بغیر آپ اگلے مرحلے پر نہیں جا سکتے۔` : `${item.label} permission is required to ${item.purpose}. You cannot continue without it.`),
+  };
+  return (
+    <div className="required-permission-overlay" role="dialog" aria-modal="true">
+      <div className="required-permission-dialog">
+        <div className="required-permission-icon">{blocked ? <Smartphone /> : <LockKeyhole />}</div>
+        <h2>{copy.title}</h2>
+        <p>{copy.body}</p>
+        {blocked ? (
+          <Button type="button" onClick={onOpenSettings}>{rtl ? 'سیٹنگز کھولیں' : 'Open Settings'}</Button>
+        ) : (
+          <>
+            <Button type="button" onClick={onRetry}>{rtl ? 'دوبارہ اجازت دیں' : 'Allow Again'}</Button>
+            <Button type="button" variant="outline" className="permission-settings" onClick={onOpenSettings}>{rtl ? 'سیٹنگز میں جائیں' : 'Go to Settings'}</Button>
+          </>
+        )}
+        <button className="permission-exit" type="button" onClick={onDismiss}>{rtl ? 'ابھی نہیں' : 'Not Now'}</button>
+      </div>
+    </div>
+  );
+}
+
+function PermissionDeniedPage({ rtl = false, flow = 'cnic', deniedPermission, permanentlyDenied = false }) {
+  const [blocked, setBlocked] = React.useState(permanentlyDenied);
+  const [visible, setVisible] = React.useState(true);
+  const content = flow === 'cnic'
+    ? <CnicApplication rtl={rtl} />
+    : <FacialGuide rtl={rtl} />;
+
+  return (
+    <div className="permission-denied-page">
+      {content}
+      {visible && (
+        <RequiredPermissionDialog
+          rtl={rtl}
+          deniedPermission={deniedPermission || (flow === 'cnic' ? 'camera' : 'appList')}
+          blocked={blocked}
+          onRetry={() => setBlocked(true)}
+          onOpenSettings={() => setBlocked(true)}
+          onDismiss={() => setVisible(false)}
+        />
+      )}
+    </div>
+  );
+}
+
 function CorrectFaceIcon() {
   return (
     <svg width="220" height="170" viewBox="0 0 220 170" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -3450,6 +3507,7 @@ const screenPairs = [
   ['Credit Application / Basic with other loans', (rtl) => <CreditBasicSection rtl={rtl} otherLoans overLimit />],
   ['Credit Application / Contact', (rtl) => <ContactApplication rtl={rtl} />],
   ['Credit Application / CNIC', (rtl) => <CnicApplication rtl={rtl} />],
+  ['Credit Application / CNIC camera permission denied', (rtl) => <PermissionDeniedPage rtl={rtl} flow="cnic" deniedPermission="camera" />],
   ['Credit Application / CNIC uploaded failure', (rtl) => <CnicApplication rtl={rtl} uploadFailureSide="front" />],
   ['Credit Application / CNIC camera', (rtl) => <CnicCamera rtl={rtl} />],
   ['Credit Application / CNIC camera review', (rtl) => <CnicCamera rtl={rtl} confirm />],
@@ -3457,6 +3515,8 @@ const screenPairs = [
   ['Credit Application / CNIC filled no sheet', (rtl) => <CnicFilledApplication rtl={rtl} showCitySheet={false} />],
   ['Withdrawal / Add method', (rtl) => <WithdrawalMethod rtl={rtl} />],
   ['Facial Verification / Guide', (rtl) => <FacialGuide rtl={rtl} />],
+  ['Facial Verification / Guide location permission denied', (rtl) => <PermissionDeniedPage rtl={rtl} flow="face" deniedPermission="location" />],
+  ['Facial Verification / Guide app list permission denied', (rtl) => <PermissionDeniedPage rtl={rtl} flow="face" deniedPermission="appList" />],
   ['Facial Verification / Scan', (rtl) => <FacialScan rtl={rtl} />],
   ['Facial Verification / Scan review', (rtl) => <FacialScan rtl={rtl} photoReview />],
   ['Facial Verification / Scan failed', (rtl) => <FacialScan rtl={rtl} recognitionFailed />],
@@ -3546,6 +3606,7 @@ const newRequirementNames = new Set([
   'Credit Application / Basic with other loans',
   'Credit Application / Contact',
   'Credit Application / CNIC',
+  'Credit Application / CNIC camera permission denied',
   'Credit Application / CNIC uploaded failure',
   'Credit Application / CNIC camera',
   'Credit Application / CNIC camera review',
@@ -3553,6 +3614,8 @@ const newRequirementNames = new Set([
   'Credit Application / CNIC filled no sheet',
   'Withdrawal / Add method',
   'Facial Verification / Guide',
+  'Facial Verification / Guide location permission denied',
+  'Facial Verification / Guide app list permission denied',
   'Facial Verification / Scan',
   'Facial Verification / Scan review',
   'Facial Verification / Scan failed',
@@ -3644,6 +3707,7 @@ const navItemTranslations = {
   'Basic with other loans': '基本信息（含其他贷款）',
   'Contact': '联系信息',
   'CNIC': 'CNIC 信息',
+  'CNIC camera permission denied': 'CNIC／相机权限被拒绝',
   'CNIC uploaded failure': 'CNIC 上传失败',
   'CNIC camera': 'CNIC 拍摄',
   'CNIC camera review': 'CNIC 拍摄确认',
@@ -3651,6 +3715,8 @@ const navItemTranslations = {
   'CNIC filled no sheet': 'CNIC 已填写（无弹层）',
   'Add method': '添加提现方式',
   'Guide': '引导页',
+  'Guide app list permission denied': '引导页／App List 权限被拒绝',
+  'Guide location permission denied': '引导页／位置权限被拒绝',
   'Scan': '扫描',
   'Scan review': '扫描确认',
   'Scan failed': '扫描失败',
