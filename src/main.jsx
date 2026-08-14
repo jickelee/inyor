@@ -618,7 +618,6 @@ function HomePage({ rtl = false, state = 'ready' }) {
             <div><span>{rtl ? 'دوبارہ قرض دستیاب' : 'Next Borrowing Time'}</span><strong>26 May 2026 09:20</strong></div>
           </div>
           <p>{rtl ? 'کولنگ آف مدت میں آرڈر منسوخ ہونے کے بعد، نظام عارضی طور پر نئی قرض درخواست محدود کرتا ہے۔ مقررہ وقت کے بعد دوبارہ کوشش کریں۔' : 'After cancelling an order during the cooling-off period, new borrowing is temporarily limited. Please try again after the next borrowing time.'}</p>
-          <Button variant="outline">{copy.cta}</Button>
         </section>
       )}
       {state === 'choose' && (
@@ -645,16 +644,14 @@ function HomePage({ rtl = false, state = 'ready' }) {
           <div className="home-detail-list">
             {state === 'remaining' && (
               <>
-                <div><span>{rtl ? 'جاری رقم' : 'Disbursed Amount'}</span><strong>PKR 30,000</strong></div>
-                <div><span>{rtl ? 'کل ادائیگی' : 'Total Repayment'}</span><strong>PKR 36,000</strong></div>
+                <div><span>{rtl ? 'ادائیگی' : 'Repayment'}</span><strong>PKR 36,000</strong></div>
                 <div><span>{rtl ? 'آخری تاریخ' : 'Due Date'}</span><strong>05 Apr 2026</strong></div>
               </>
             )}
             {state === 'dueSoon' && (
               <>
-                <div><span>{rtl ? 'جاری رقم' : 'Disbursed Amount'}</span><strong>PKR 30,000</strong></div>
-                <div><span>{rtl ? 'کل ادائیگی' : 'Total Repayment'}</span><strong>PKR 36,000</strong></div>
-                <div><span>{rtl ? 'آخری تاریخ' : 'Due Date'}</span><strong>Today / 24 Mar 2026</strong></div>
+                <div><span>{rtl ? 'ادائیگی' : 'Repayment'}</span><strong>PKR 36,000</strong></div>
+                <div><span>{rtl ? 'آخری تاریخ' : 'Due Date'}</span><strong>24 Mar 2026</strong></div>
               </>
             )}
             {state === 'overdue' && (
