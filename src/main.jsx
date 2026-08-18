@@ -3228,7 +3228,6 @@ function Phase3OrderDetails({ state = 'upcoming', rtl = false, initialEarlySettl
       {overdue && <div className="phase3-detail-loan-id"><Phase3LoanId rtl={rtl} /></div>}
       <section className="phase3-detail-list">
         <div><span>{rtl ? phase3Urdu.markup : 'Markup'}</span><strong>{phase3Order.markup}</strong></div>
-        <div><span>{rtl ? phase3Urdu.couponApplied : 'Discount'}</span><strong dir="ltr">-{phase3Order.coupon}</strong></div>
         <div><span>{rtl ? phase3Urdu.terms : 'Loan Term'}</span><strong>{rtl ? '4 اقساط · 60 دن' : phase3Order.terms}</strong></div>
         <div><span>{rtl ? phase3Urdu.disbursement : 'Disbursement Date'}</span><strong><Phase3Date>{phase3Order.date}</Phase3Date></strong></div>
         <div><span>{rtl ? phase3Urdu.service : 'Service Fee'}</span><strong>{phase3Order.service}</strong></div>
